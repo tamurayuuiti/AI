@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リアルタイム顔認識システム</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .container { text-align: center; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 800px; }
+        h1 { color: #333; }
+        p { font-size: 18px; color: #666; }
+        .video-container { position: relative; width: 720px; height: 560px; margin: 20px auto; border: 2px solid #333; border-radius: 8px; }
+        video, canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #status { font-size: 18px; margin-top: 10px; color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>リアルタイム顔認識システム</h1>
+        <p>カメラ映像に映った人物を認識します。</p>
+        <div class="video-container">
+            <video id="video" autoplay muted></video>
+            <canvas id="overlay"></canvas>
+        </div>
+        <div id="status">準備中...</div>
+    </div>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('overlay');
+        const ctx = canvas.getContext('2d');
+        const statusElement = document.getElementById('status');
+        const customClasses = ['Daiki_Tode', 'Haruna_Oguro', 'Himeka_Kugai', 'Honoka_Nishikawa', 'Nonoka_Sato', 'Shohei_Otsuka', 'Taiki_Kimura', 'Yuna_Katayose'];
+        let recognitionModel = null;
+
+        async function setupCamera() {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+            video.srcObject = stream;
+            return new Promise((resolve) => { video.onloadedmetadata = () => resolve(video); });
+        }
+
+        async function setupFaceAPI() {
+            await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+            await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+            await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+        }
+
+        async function loadRecognitionModel() {
+            recognitionModel = await tf.loadLayersModel('/model/model.json');
+            statusElement.textContent = "モデルの読み込みが完了しました。";
+        }
+
+        async function recognizeFace() {
+            const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (detections.length > 0) {
+                detections.forEach(detection => {
+                    const { x, y, width, height } = detection.detection.box;
+                    const descriptor = detection.descriptor;
+                    ctx.strokeStyle = "green";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x, y, width, height);
+                    const personName = matchFace(descriptor);
+                    ctx.fillStyle = "white";
+                    ctx.font = "18px Arial";
+                    ctx.fillText(personName, x, y - 10);
+                });
+            }
+        }
+
+        function matchFace(descriptor) {
+            const descriptorTensor = tf.tensor([descriptor]);
+            const prediction = recognitionModel.predict(descriptorTensor);
+            const labelIndex = prediction.argMax(-1).dataSync()[0];
+            return labelIndex < 8 ? customClasses[labelIndex] : 'Unknown';
+        }
+
+        async function main() {
+            await setupCamera();
+            await setupFaceAPI();
+            await loadRecognitionModel();
+            video.addEventListener('play', () => {
+                canvas.width = video.width;
+                canvas.height = video.height;
+                setInterval(async () => { await recognizeFace(); }, 100);
+            });
+        }
+
+        main();
+    </script>
+</body>
+</html>
