@@ -35,9 +35,14 @@
         let recognitionModel = null;
 
         async function setupCamera() {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
-            video.srcObject = stream;
-            return new Promise((resolve) => { video.onloadedmetadata = () => resolve(video); });
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                return new Promise((resolve) => { video.onloadedmetadata = () => resolve(video); });
+            } catch (error) {
+                alert("カメラのアクセスが許可されていません。カメラへのアクセスを許可してください。");
+                console.error("Error accessing camera:", error);
+            }
         }
 
         async function setupFaceAPI() {
@@ -81,8 +86,8 @@
             await setupFaceAPI();
             await loadRecognitionModel();
             video.addEventListener('play', () => {
-                canvas.width = video.width;
-                canvas.height = video.height;
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
                 setInterval(async () => { await recognizeFace(); }, 100);
             });
         }
