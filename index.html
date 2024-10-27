@@ -11,7 +11,7 @@
         .container { text-align: center; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 800px; }
         h1 { color: #333; }
         p { font-size: 18px; color: #666; }
-        .video-container { position: relative; width: 720px; height: 560px; margin: 20px auto; border: 2px solid #333; border-radius: 8px; }
+        .video-container { position: relative; width: 720px; height: 560px; margin: 20px auto; border: 2px solid #333; border-radius: 8px; overflow: hidden; }
         video, canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         #status, #statusMode { font-size: 18px; margin-top: 10px; color: #007bff; }
         #pauseButton { margin-top: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
@@ -55,8 +55,9 @@
             try {
                 await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
                 statusElement.textContent = "顔検出モデルの読み込みが完了しました。";
+                console.log("顔検出モデルの読み込みが成功しました。");
             } catch (error) {
-                console.error("Error loading face detection model:", error);
+                console.error("顔検出モデルの読み込みに失敗しました:", error);
             }
         }
 
@@ -65,6 +66,7 @@
                 recognitionModel = await tf.loadLayersModel('/model/model.json');
                 statusElement.textContent = "顔認識モデルの読み込みが完了しました。";
                 statusModeElement.textContent = "モード: 学習モデルを使用して顔認識中";
+                console.log("顔認識モデルの読み込みが成功しました。");
             } catch (error) {
                 console.warn("顔認識モデルが見つかりません。顔検出のみを行います。");
                 console.error("Error loading recognition model:", error);
@@ -98,6 +100,11 @@
                 ctx.font = "18px Arial";
                 ctx.fillText(label, x, y - 10);
             });
+
+            // リアルタイムで次のフレームを要求
+            if (!isPaused) {
+                requestAnimationFrame(detectFaces);
+            }
         }
 
         function recognizeFace(descriptor) {
@@ -111,6 +118,7 @@
             if (isPaused) {
                 video.play();
                 pauseButton.textContent = "一時停止";
+                requestAnimationFrame(detectFaces);  // 再開時にリアルタイム検出を再開
             } else {
                 video.pause();
                 pauseButton.textContent = "再開";
@@ -125,9 +133,7 @@
             video.addEventListener('play', () => {
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
-                setInterval(async () => {
-                    if (!isPaused) await detectFaces();
-                }, 100);
+                requestAnimationFrame(detectFaces);  // リアルタイムの顔検出を開始
             });
         }
 
