@@ -4,19 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>リアルタイム顔認識システム</title>
+    <!-- モデルの読み込みURLは変更せずそのまま保持しています -->
     <script defer src="libs/tf.min.js"></script>
     <script defer src="libs/face-api.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { text-align: center; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 90%; width: 800px; }
-        h1 { color: #333; font-size: 2em; }
-        p { font-size: 1em; color: #666; }
-        .video-container { position: relative; width: 100%; padding-top: 75%; margin: 20px 0; border: 2px solid #333; border-radius: 8px; overflow: hidden; }
-        video, canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        #status, #statusMode, #faceList { font-size: 1em; margin-top: 10px; color: #007bff; }
-        #pauseButton { margin-top: 10px; padding: 10px 20px; font-size: 1em; cursor: pointer; }
-        .face-list-item { font-size: 1em; color: #333; margin-top: 5px; }
-        @media (max-width: 768px) { h1 { font-size: 1.5em; } p, #status, #statusMode, #pauseButton { font-size: 0.9em; } }
+        /* レスポンシブ対応のCSS調整 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 2vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 90vw;
+            max-width: 800px;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #333;
+            font-size: 5vw;
+        }
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: auto;
+            max-width: 720px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        video, canvas {
+            width: 100%;
+            height: auto;
+        }
+        #status, #statusMode {
+            font-size: 4vw;
+            color: #007bff;
+        }
+        #recognizedList {
+            margin-top: 2vh;
+            font-size: 3vw;
+            color: #333;
+        }
+        #pauseButton {
+            margin-top: 2vh;
+            padding: 1vh 2vw;
+            font-size: 4vw;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -30,7 +75,7 @@
         <div id="status">準備中...</div>
         <div id="statusMode">モード: 確認中...</div>
         <button id="pauseButton">一時停止</button>
-        <div id="faceList"></div>
+        <div id="recognizedList">現在認識中の顔リスト：</div>
     </div>
     <script>
         const video = document.getElementById('video');
@@ -38,11 +83,12 @@
         const ctx = canvas.getContext('2d');
         const statusElement = document.getElementById('status');
         const statusModeElement = document.getElementById('statusMode');
-        const faceListElement = document.getElementById('faceList');
         const pauseButton = document.getElementById('pauseButton');
+        const recognizedListElement = document.getElementById('recognizedList');
+        const customClasses = ['Daiki_Tode', 'Haruna_Oguro', 'Himeka_Kugai', 'Honoka_Nishikawa', 'Nonoka_Sato', 'Shohei_Otsuka', 'Taiki_Kimura', 'Yuna_Katayose'];
         let recognitionModel = null;
         let isPaused = false;
-        let currentFaces = {};
+        let detectedFaces = [];
 
         async function setupCamera() {
             try {
@@ -57,9 +103,11 @@
 
         async function setupFaceAPI() {
             try {
+                // 各モデルファイルの直接URLを指定（変更せず）
                 await faceapi.nets.tinyFaceDetector.loadFromUri('https://tamurayuuiti.github.io/AI/models');
                 await faceapi.nets.faceLandmark68Net.loadFromUri('https://tamurayuuiti.github.io/AI/models');
                 await faceapi.nets.faceRecognitionNet.loadFromUri('https://tamurayuuiti.github.io/AI/models');
+
                 statusElement.textContent = "顔検出モデルの読み込みが完了しました。";
                 console.log("顔検出モデルの読み込みが成功しました。");
             } catch (error) {
@@ -67,62 +115,55 @@
             }
         }
 
-        function updateFaceList(detections) {
-            const newFaces = {};
-            let unknownCount = 1;
-            detections.forEach(detection => {
-                const descriptor = detection.descriptor;
-                let label = "Unknown";
-
-                for (let face in currentFaces) {
-                    if (face === JSON.stringify(descriptor)) {
-                        newFaces[face] = currentFaces[face];
-                        return;
-                    }
-                }
-
-                label = `Unknown${unknownCount++}`;
-                newFaces[JSON.stringify(descriptor)] = label;
-            });
-            currentFaces = newFaces;
-
-            faceListElement.innerHTML = '';
-            Object.values(currentFaces).forEach(faceLabel => {
-                const faceListItem = document.createElement('div');
-                faceListItem.className = 'face-list-item';
-                faceListItem.textContent = faceLabel;
-                faceListElement.appendChild(faceListItem);
-            });
+        function updateRecognizedList() {
+            recognizedListElement.innerHTML = '現在認識中の顔リスト：<br>' + detectedFaces.map(face => `<li>${face}</li>`).join('');
         }
 
         async function detectFaces() {
             const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (detections.length > 0) {
-                updateFaceList(detections);
-                detections.forEach(detection => {
-                    const { x, y, width, height } = detection.detection.box;
-                    ctx.strokeStyle = "green";
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(x, y, width, height);
-                    ctx.fillStyle = "white";
-                    ctx.font = "18px Arial";
-                    ctx.fillText(currentFaces[JSON.stringify(detection.descriptor)], x, y - 10);
-                });
-            } else {
-                currentFaces = {};
-                faceListElement.innerHTML = '';
-            }
+            const newDetectedFaces = [];
+            detections.forEach((detection, index) => {
+                const { x, y, width, height } = detection.detection.box;
+                let label = "Unknown";
+
+                if (recognitionModel) {
+                    label = recognizeFace(detection.descriptor);
+                } else {
+                    label = `Unknown${index + 1}`;
+                }
+                newDetectedFaces.push(label);
+
+                // 枠線とラベルを描画
+                ctx.strokeStyle = "green";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, y, width, height);
+                ctx.fillStyle = "white";
+                ctx.font = "18px Arial";
+                ctx.fillText(label, x, y - 10);
+            });
+
+            detectedFaces = newDetectedFaces;
+            updateRecognizedList();
         }
 
-        setInterval(() => {
-            if (!isPaused) detectFaces();
-        }, 100);
+        function recognizeFace(descriptor) {
+            const descriptorTensor = tf.tensor([descriptor]);
+            const prediction = recognitionModel.predict(descriptorTensor);
+            const labelIndex = prediction.argMax(-1).dataSync()[0];
+            return labelIndex < customClasses.length ? customClasses[labelIndex] : 'Unknown';
+        }
 
         pauseButton.addEventListener('click', () => {
+            if (isPaused) {
+                video.play();
+                pauseButton.textContent = "一時停止";
+            } else {
+                video.pause();
+                pauseButton.textContent = "再開";
+            }
             isPaused = !isPaused;
-            pauseButton.textContent = isPaused ? "再開" : "一時停止";
         });
 
         async function main() {
@@ -131,6 +172,9 @@
             video.addEventListener('play', () => {
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
+                setInterval(() => {
+                    if (!isPaused) detectFaces();
+                }, 100);  // 100msごとに顔検出を実行
             });
         }
 
