@@ -42,7 +42,7 @@
 
         async function setupCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 video.srcObject = stream;
                 return new Promise((resolve) => { video.onloadedmetadata = () => resolve(video); });
             } catch (error) {
@@ -76,6 +76,12 @@
             const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            if (detections.length > 0) {
+                console.log("顔検出成功:", detections.length, "個の顔が検出されました。");
+            } else {
+                console.log("顔が検出されませんでした。");
+            }
+
             detections.forEach(detection => {
                 const { x, y, width, height } = detection.detection.box;
                 let label = "Unknown";
@@ -84,7 +90,7 @@
                     label = recognizeFace(detection.descriptor);
                 }
 
-                // 顔の枠線とラベルを描画
+                // 枠線とラベルを描画
                 ctx.strokeStyle = "green";
                 ctx.lineWidth = 2;
                 ctx.strokeRect(x, y, width, height);
