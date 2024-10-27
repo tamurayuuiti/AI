@@ -13,7 +13,8 @@
         p { font-size: 18px; color: #666; }
         .video-container { position: relative; width: 720px; height: 560px; margin: 20px auto; border: 2px solid #333; border-radius: 8px; }
         video, canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        #status { font-size: 18px; margin-top: 10px; color: #007bff; }
+        #status, #statusMode { font-size: 18px; margin-top: 10px; color: #007bff; }
+        #pauseButton { margin-top: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -25,14 +26,19 @@
             <canvas id="overlay"></canvas>
         </div>
         <div id="status">準備中...</div>
+        <div id="statusMode">モード: 確認中...</div>
+        <button id="pauseButton">一時停止</button>
     </div>
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('overlay');
         const ctx = canvas.getContext('2d');
         const statusElement = document.getElementById('status');
+        const statusModeElement = document.getElementById('statusMode');
+        const pauseButton = document.getElementById('pauseButton');
         const customClasses = ['Daiki_Tode', 'Haruna_Oguro', 'Himeka_Kugai', 'Honoka_Nishikawa', 'Nonoka_Sato', 'Shohei_Otsuka', 'Taiki_Kimura', 'Yuna_Katayose'];
         let recognitionModel = null;
+        let isPaused = false;
 
         async function setupCamera() {
             try {
@@ -46,19 +52,23 @@
         }
 
         async function setupFaceAPI() {
-            // 顔検出モデルをロード
-            await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-            statusElement.textContent = "顔検出モデルの読み込みが完了しました。";
+            try {
+                await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+                statusElement.textContent = "顔検出モデルの読み込みが完了しました。";
+            } catch (error) {
+                console.error("Error loading face detection model:", error);
+            }
         }
 
         async function loadRecognitionModel() {
             try {
-                // 学習モデルをロード
                 recognitionModel = await tf.loadLayersModel('/model/model.json');
                 statusElement.textContent = "顔認識モデルの読み込みが完了しました。";
+                statusModeElement.textContent = "モード: 学習モデルを使用して顔認識中";
             } catch (error) {
                 console.warn("顔認識モデルが見つかりません。顔検出のみを行います。");
-                statusElement.textContent = "顔認識モデルが見つかりません。";
+                console.error("Error loading recognition model:", error);
+                statusModeElement.textContent = "モード: 顔検出のみ実行中";
             }
         }
 
@@ -66,17 +76,15 @@
             const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 検出された顔ごとに処理
             detections.forEach(detection => {
                 const { x, y, width, height } = detection.detection.box;
                 let label = "Unknown";
 
-                // 学習モデルが存在すれば顔認識を行い、存在しなければ "Unknown" を表示
                 if (recognitionModel) {
                     label = recognizeFace(detection.descriptor);
                 }
 
-                // 顔の枠線とラベルを描画
+                // 枠線とラベルを描画
                 ctx.strokeStyle = "green";
                 ctx.lineWidth = 2;
                 ctx.strokeRect(x, y, width, height);
@@ -93,6 +101,17 @@
             return labelIndex < customClasses.length ? customClasses[labelIndex] : 'Unknown';
         }
 
+        pauseButton.addEventListener('click', () => {
+            if (isPaused) {
+                video.play();
+                pauseButton.textContent = "一時停止";
+            } else {
+                video.pause();
+                pauseButton.textContent = "再開";
+            }
+            isPaused = !isPaused;
+        });
+
         async function main() {
             await setupCamera();
             await setupFaceAPI();
@@ -100,7 +119,9 @@
             video.addEventListener('play', () => {
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
-                setInterval(async () => { await detectFaces(); }, 100);
+                setInterval(async () => {
+                    if (!isPaused) await detectFaces();
+                }, 100);
             });
         }
 
