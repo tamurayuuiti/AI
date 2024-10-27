@@ -56,9 +56,9 @@
             try {
                 // リポジトリ名を含めたURLを指定してモデルファイルを読み込み
                 const modelBaseURL = 'https://tamurayuuiti.github.io/AI/models';
-                await faceapi.nets.tinyFaceDetector.loadFromUri(modelBaseURL);
-                await faceapi.nets.faceLandmark68Net.loadFromUri(modelBaseURL);
-                await faceapi.nets.faceRecognitionNet.loadFromUri(modelBaseURL);
+                await faceapi.nets.tinyFaceDetector.loadFromUri(`${modelBaseURL}/tiny_face_detector_model-weights_manifest.json`);
+                await faceapi.nets.faceLandmark68Net.loadFromUri(`${modelBaseURL}/face_landmark_68_model-weights_manifest.json`);
+                await faceapi.nets.faceRecognitionNet.loadFromUri(`${modelBaseURL}/face_recognition_model-weights_manifest.json`);
                 statusElement.textContent = "顔検出モデルの読み込みが完了しました。";
                 console.log("顔検出モデルの読み込みが成功しました。");
             } catch (error) {
