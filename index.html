@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>リアルタイム顔認識システム</title>
-    <!-- face-api.jsの読み込み -->
+    <!-- face-api.jsライブラリの読み込み -->
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
@@ -53,7 +53,7 @@
 
         async function setupFaceAPI() {
             try {
-                // モデルファイルを指定したディレクトリから読み込み
+                // モデルファイルの読み込み
                 await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
                 await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
                 await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
