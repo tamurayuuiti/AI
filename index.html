@@ -4,64 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>リアルタイム顔認識システム</title>
-    <!-- モデルの読み込みURLは変更せずそのまま保持しています -->
+    <!-- face-api.jsとtensorflow.jsのローカルファイルを読み込み -->
+    <!-- モデルの読み込み部分は絶対に変更しないでください -->
     <script defer src="libs/tf.min.js"></script>
     <script defer src="libs/face-api.min.js"></script>
     <style>
-        /* レスポンシブ対応のCSS調整 */
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             margin: 0;
             padding: 0;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             height: 100vh;
-            color: #333;
         }
         .container {
             text-align: center;
             background-color: #fff;
-            padding: 2vh;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            width: 90vw;
-            max-width: 800px;
-            box-sizing: border-box;
+            max-width: 90%;
+            width: 800px;
         }
-        h1 {
-            color: #333;
-            font-size: 5vw;
-        }
+        h1 { color: #333; }
+        p { font-size: 18px; color: #666; }
         .video-container {
             position: relative;
             width: 100%;
-            height: auto;
             max-width: 720px;
+            margin: 20px auto;
             border: 2px solid #333;
             border-radius: 8px;
             overflow: hidden;
         }
         video, canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: auto;
+            height: 100%;
         }
-        #status, #statusMode {
-            font-size: 4vw;
+        #status, #statusMode, #faceList {
+            font-size: 18px;
+            margin-top: 10px;
             color: #007bff;
         }
-        #recognizedList {
-            margin-top: 2vh;
-            font-size: 3vw;
-            color: #333;
-        }
-        #pauseButton {
-            margin-top: 2vh;
-            padding: 1vh 2vw;
-            font-size: 4vw;
-            cursor: pointer;
-        }
+        #pauseButton { margin-top: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        #faceList { text-align: left; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -74,8 +65,8 @@
         </div>
         <div id="status">準備中...</div>
         <div id="statusMode">モード: 確認中...</div>
+        <div id="faceList">認識された顔リスト:</div>
         <button id="pauseButton">一時停止</button>
-        <div id="recognizedList">現在認識中の顔リスト：</div>
     </div>
     <script>
         const video = document.getElementById('video');
@@ -83,12 +74,12 @@
         const ctx = canvas.getContext('2d');
         const statusElement = document.getElementById('status');
         const statusModeElement = document.getElementById('statusMode');
+        const faceListElement = document.getElementById('faceList');
         const pauseButton = document.getElementById('pauseButton');
-        const recognizedListElement = document.getElementById('recognizedList');
         const customClasses = ['Daiki_Tode', 'Haruna_Oguro', 'Himeka_Kugai', 'Honoka_Nishikawa', 'Nonoka_Sato', 'Shohei_Otsuka', 'Taiki_Kimura', 'Yuna_Katayose'];
         let recognitionModel = null;
         let isPaused = false;
-        let detectedFaces = [];
+        let recognizedFaces = {};  // 顔リストの管理
 
         async function setupCamera() {
             try {
@@ -103,10 +94,9 @@
 
         async function setupFaceAPI() {
             try {
-                // 各モデルファイルの直接URLを指定（変更せず）
-                await faceapi.nets.tinyFaceDetector.loadFromUri('https://tamurayuuiti.github.io/AI/models');
-                await faceapi.nets.faceLandmark68Net.loadFromUri('https://tamurayuuiti.github.io/AI/models');
-                await faceapi.nets.faceRecognitionNet.loadFromUri('https://tamurayuuiti.github.io/AI/models');
+                await faceapi.nets.tinyFaceDetector.loadFromUri('https://tamurayuuiti.github.io/AI/models/tiny_face_detector_model-weights_manifest.json');
+                await faceapi.nets.faceLandmark68Net.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_landmark_68_model-weights_manifest.json');
+                await faceapi.nets.faceRecognitionNet.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_recognition_model-weights_manifest.json');
 
                 statusElement.textContent = "顔検出モデルの読み込みが完了しました。";
                 console.log("顔検出モデルの読み込みが成功しました。");
@@ -115,27 +105,44 @@
             }
         }
 
-        function updateRecognizedList() {
-            recognizedListElement.innerHTML = '現在認識中の顔リスト：<br>' + detectedFaces.map(face => `<li>${face}</li>`).join('');
+        async function loadRecognitionModel() {
+            try {
+                recognitionModel = await tf.loadLayersModel('https://tamurayuuiti.github.io/models/model.json');
+                statusElement.textContent = "顔認識モデルの読み込みが完了しました。";
+                statusModeElement.textContent = "モード: 学習モデルを使用して顔認識中";
+                console.log("顔認識モデルの読み込みが成功しました。");
+            } catch (error) {
+                console.warn("顔認識モデルが見つかりません。顔検出のみを行います。");
+                console.error("Error loading recognition model:", error);
+                statusModeElement.textContent = "モード: 顔検出のみ実行中";
+            }
+        }
+
+        function updateFaceList() {
+            faceListElement.innerHTML = '認識された顔リスト: <br>' + Object.entries(recognizedFaces).map(([label, _]) => label).join('<br>');
         }
 
         async function detectFaces() {
             const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const newDetectedFaces = [];
-            detections.forEach((detection, index) => {
+            const currentFaces = {};
+
+            detections.forEach(detection => {
                 const { x, y, width, height } = detection.detection.box;
                 let label = "Unknown";
-
                 if (recognitionModel) {
                     label = recognizeFace(detection.descriptor);
-                } else {
-                    label = `Unknown${index + 1}`;
                 }
-                newDetectedFaces.push(label);
 
-                // 枠線とラベルを描画
+                if (label === "Unknown") {
+                    let unknownCount = 1;
+                    while (currentFaces[`unknown${unknownCount}`]) unknownCount++;
+                    label = `unknown${unknownCount}`;
+                }
+
+                currentFaces[label] = true;
+
                 ctx.strokeStyle = "green";
                 ctx.lineWidth = 2;
                 ctx.strokeRect(x, y, width, height);
@@ -144,8 +151,17 @@
                 ctx.fillText(label, x, y - 10);
             });
 
-            detectedFaces = newDetectedFaces;
-            updateRecognizedList();
+            recognizedFaces = Object.fromEntries(
+                Object.entries(recognizedFaces).filter(([label]) => currentFaces[label])
+            );
+
+            Object.keys(currentFaces).forEach(label => {
+                if (!recognizedFaces[label]) {
+                    recognizedFaces[label] = true;
+                }
+            });
+
+            updateFaceList();
         }
 
         function recognizeFace(descriptor) {
@@ -159,6 +175,7 @@
             if (isPaused) {
                 video.play();
                 pauseButton.textContent = "一時停止";
+                startFaceDetection();
             } else {
                 video.pause();
                 pauseButton.textContent = "再開";
@@ -166,15 +183,21 @@
             isPaused = !isPaused;
         });
 
+        function startFaceDetection() {
+            if (!isPaused) {
+                detectFaces();
+                setTimeout(startFaceDetection, 100);  // 100ms間隔で顔検出を繰り返す
+            }
+        }
+
         async function main() {
             await setupCamera();
             await setupFaceAPI();
+            await loadRecognitionModel();
             video.addEventListener('play', () => {
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
-                setInterval(() => {
-                    if (!isPaused) detectFaces();
-                }, 100);  // 100msごとに顔検出を実行
+                startFaceDetection();
             });
         }
 
