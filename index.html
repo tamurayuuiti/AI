@@ -68,7 +68,7 @@
 
         async function loadRecognitionModel() {
             try {
-                recognitionModel = await tf.loadLayersModel('https://tamurayuuiti.github.io/AI/models/model.json');
+                recognitionModel = await tf.loadLayersModel('https://tamurayuuiti.github.io/models/model.json');
                 statusElement.textContent = "顔認識モデルの読み込みが完了しました。";
                 statusModeElement.textContent = "モード: 学習モデルを使用して顔認識中";
                 console.log("顔認識モデルの読み込みが成功しました。");
