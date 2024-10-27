@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>リアルタイム顔認識システム</title>
-    <!-- face-api.jsライブラリの読み込み -->
-    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <!-- face-api.jsとtensorflow.jsのローカルファイルを読み込み -->
+    <script defer src="libs/tf.min.js"></script>
+    <script defer src="libs/face-api.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
         .container { text-align: center; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 800px; }
@@ -53,10 +54,10 @@
 
         async function setupFaceAPI() {
             try {
-                // モデルファイルの読み込み
-                await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-                await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-                await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+                // ローカルモデルファイルの読み込み
+                await faceapi.nets.tinyFaceDetector.loadFromUri('models');
+                await faceapi.nets.faceLandmark68Net.loadFromUri('models');
+                await faceapi.nets.faceRecognitionNet.loadFromUri('models');
                 statusElement.textContent = "顔検出モデルの読み込みが完了しました。";
                 console.log("顔検出モデルの読み込みが成功しました。");
             } catch (error) {
