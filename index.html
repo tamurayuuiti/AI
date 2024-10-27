@@ -55,7 +55,7 @@
         async function setupFaceAPI() {
             try {
                 // リポジトリ名を含めたURLを指定してモデルファイルを読み込み
-                const modelBaseURL = 'https://tamurayuuiti.github.io/AI/models';
+                const modelBaseURL = 'https://tamurayuuiti.github.io/models';
                 await faceapi.nets.tinyFaceDetector.loadFromUri(`${modelBaseURL}/tiny_face_detector_model-weights_manifest.json`);
                 await faceapi.nets.faceLandmark68Net.loadFromUri(`${modelBaseURL}/face_landmark_68_model-weights_manifest.json`);
                 await faceapi.nets.faceRecognitionNet.loadFromUri(`${modelBaseURL}/face_recognition_model-weights_manifest.json`);
