@@ -53,22 +53,22 @@
         }
 
         async function setupFaceAPI() {
-    try {
-        // 各モデルファイルの読み込み
-        await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-        await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-        await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-
-        statusElement.textContent = "顔検出モデルの読み込みが完了しました。";
-        console.log("顔検出モデルの読み込みが成功しました。");
-    } catch (error) {
-        console.error("顔検出モデルの読み込みに失敗しました:", error);
-    }
-}
+            try {
+                // リポジトリ名を含めたURLを指定してモデルファイルを読み込み
+                const modelBaseURL = 'https://tamurayuuiti.github.io/AI/models';
+                await faceapi.nets.tinyFaceDetector.loadFromUri(modelBaseURL);
+                await faceapi.nets.faceLandmark68Net.loadFromUri(modelBaseURL);
+                await faceapi.nets.faceRecognitionNet.loadFromUri(modelBaseURL);
+                statusElement.textContent = "顔検出モデルの読み込みが完了しました。";
+                console.log("顔検出モデルの読み込みが成功しました。");
+            } catch (error) {
+                console.error("顔検出モデルの読み込みに失敗しました:", error);
+            }
+        }
 
         async function loadRecognitionModel() {
             try {
-                recognitionModel = await tf.loadLayersModel('/model/model.json');
+                recognitionModel = await tf.loadLayersModel('https://tamurayuuiti.github.io/AI/models/model.json');
                 statusElement.textContent = "顔認識モデルの読み込みが完了しました。";
                 statusModeElement.textContent = "モード: 学習モデルを使用して顔認識中";
                 console.log("顔認識モデルの読み込みが成功しました。");
