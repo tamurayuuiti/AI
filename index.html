@@ -36,7 +36,7 @@
             overflow: hidden;
             width: 100%;
             max-width: 640px;
-            aspect-ratio: 4 / 3;
+            height: 100%;  /* aspect-ratioを削除し、可変の高さに対応 */
             border: 2px solid rgba(255, 255, 255, 0.7);
             margin-bottom: 20px;
             display: flex;
@@ -92,12 +92,12 @@
         @media (orientation: landscape) and (max-width: 768px) {
             .container {
                 width: 100%;
-                padding: 10px;
+                padding: 5px;  /* 横画面時のパディングを縮小 */
                 justify-content: center;
                 height: 100vh;  /* コンテナの高さを画面全体に合わせる */
             }
-            h1, p { margin-bottom: 8px; }  /* 各要素の余白を縮小 */
-            .video-container { max-width: 100%; border-width: 1px; }
+            h1, p { margin-bottom: 5px; }  /* 各要素の余白をさらに縮小 */
+            .video-container { max-width: 100%; border-width: 1px; height: 80%; }  /* 横画面時の高さ調整 */
             #pauseButton { padding: 8px 16px; font-size: 0.9rem; }
         }
     </style>
