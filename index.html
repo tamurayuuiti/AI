@@ -83,7 +83,7 @@
         }
 
         /* Button styling */
-        #pauseButton {
+        #pauseButton, #testFrameButton {
             margin-top: 15px;
             padding: 12px 25px;
             font-size: 1rem;
@@ -95,13 +95,14 @@
             font-weight: bold;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 120, 215, 0.3);
+            margin-right: 10px;
         }
 
-        #pauseButton:hover {
+        #pauseButton:hover, #testFrameButton:hover {
             background: #e0e0e0;
         }
 
-        #pauseButton:active {
+        #pauseButton:active, #testFrameButton:active {
             transform: scale(0.98);
             box-shadow: 0 2px 8px rgba(0, 120, 215, 0.2);
         }
@@ -110,7 +111,7 @@
         @media (max-width: 768px) {
             h1 { font-size: 1.5rem; }
             p, #status, #statusMode { font-size: 0.9rem; }
-            #pauseButton { padding: 10px 20px; font-size: 0.9rem; }
+            #pauseButton, #testFrameButton { padding: 10px 20px; font-size: 0.9rem; }
             .container { padding: 20px; width: 95%; margin: 20px 15px; }
             .video-container { max-width: 100%; height: 55vh; max-height: 55vh; }
         }
@@ -124,7 +125,7 @@
             }
             h1, p { margin-bottom: 5px; }
             .video-container { max-height: 55vh; }
-            #pauseButton { padding: 8px 16px; font-size: 0.9rem; }
+            #pauseButton, #testFrameButton { padding: 8px 16px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -139,6 +140,7 @@
         <div id="status">モデルの読み込み中...</div>
         <div id="statusMode">モード: 初期化中</div>
         <button id="pauseButton">一時停止</button>
+        <button id="testFrameButton">枠線表示テスト</button>
     </div>
     <script>
         const video = document.getElementById('video');
@@ -147,10 +149,12 @@
         const statusElement = document.getElementById('status');
         const statusModeElement = document.getElementById('statusMode');
         const pauseButton = document.getElementById('pauseButton');
+        const testFrameButton = document.getElementById('testFrameButton');
         const videoContainer = document.getElementById('videoContainer');
         const customClasses = ['Daiki_Tode', 'Haruna_Oguro', 'Himeka_Kugai', 'Honoka_Nishikawa', 'Nonoka_Sato', 'Shohei_Otsuka', 'Taiki_Kimura', 'Yuna_Katayose'];
         let recognitionModel = null;
         let isPaused = false;
+        let isFrameVisible = false;  // 枠線の表示状態
 
         async function setupCamera() {
             try {
@@ -198,7 +202,6 @@
 
         async function detectFaces() {
             try {
-                // 強化された顔検出設定
                 const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: 0.4 });
                 const detections = await faceapi.detectAllFaces(video, options).withFaceLandmarks().withFaceDescriptors();
                 
@@ -218,13 +221,11 @@
                         label = recognizeFace(detection.descriptor);
                     }
 
-                    // 顔の詳細情報をコンソールに出力
                     console.log(`顔${index + 1}の詳細情報:`);
                     console.log(`- 位置: x=${x}, y=${y}, width=${width}, height=${height}`);
                     console.log(`- 特徴点:`, detection.landmarks.positions);
                     console.log(`- ディスクリプタ:`, detection.descriptor);
 
-                    // 顔枠とラベルの描画
                     ctx.strokeStyle = "lime";
                     ctx.lineWidth = 3;
                     ctx.strokeRect(x, y, width, height);
@@ -235,6 +236,10 @@
 
             } catch (error) {
                 console.error("顔検出中にエラーが発生しました:", error);
+            }
+
+            if (isFrameVisible) {
+                drawTestFrame();
             }
 
             if (!isPaused) {
@@ -255,6 +260,27 @@
             }
         }
 
+        // 枠線表示テスト用の関数
+        function drawTestFrame() {
+            const frameSize = 150;
+            const centerX = canvas.width / 2 - frameSize / 2;
+            const centerY = canvas.height / 2 - frameSize / 2;
+
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(centerX, centerY, frameSize, frameSize);
+        }
+
+        testFrameButton.addEventListener('click', () => {
+            isFrameVisible = !isFrameVisible;
+            if (isFrameVisible) {
+                console.log("枠線を表示しました。");
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                console.log("枠線を非表示にしました。");
+            }
+        });
+
         pauseButton.addEventListener('click', () => {
             if (isPaused) {
                 video.play();
@@ -269,7 +295,7 @@
 
         function adjustVideoSize() {
             const width = Math.min(window.innerWidth * 0.9, video.videoWidth);
-            const height = width * 0.75;  // 4:3 aspect ratio
+            const height = width * 0.75;
             videoContainer.style.width = `${width}px`;
             videoContainer.style.height = `${height}px`;
             canvas.width = width;
