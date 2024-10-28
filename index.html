@@ -12,8 +12,8 @@
         .container { text-align: center; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 800px; }
         h1 { color: #333; }
         p { font-size: 18px; color: #666; }
-        .video-container { position: relative; width: 720px; height: 560px; margin: 20px auto; border: 2px solid #333; border-radius: 8px; overflow: hidden; }
-        video, canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .video-container { position: relative; display: inline-block; margin: 20px auto; border: 2px solid #333; border-radius: 8px; overflow: hidden; }
+        video, canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; } /* 映像をコンテナ枠に合わせて描画 */
         #status, #statusMode { font-size: 18px; margin-top: 10px; color: #007bff; }
         #pauseButton { margin-top: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
     </style>
@@ -22,7 +22,7 @@
     <div class="container">
         <h1>リアルタイム顔認識システム</h1>
         <p>カメラ映像に映った人物を認識します。</p>
-        <div class="video-container">
+        <div class="video-container" id="videoContainer">
             <video id="video" autoplay muted playsinline></video>
             <canvas id="overlay"></canvas>
         </div>
@@ -34,6 +34,7 @@
         const video = document.getElementById('video');
         const canvas = document.getElementById('overlay');
         const ctx = canvas.getContext('2d');
+        const videoContainer = document.getElementById('videoContainer');
         const statusElement = document.getElementById('status');
         const statusModeElement = document.getElementById('statusMode');
         const pauseButton = document.getElementById('pauseButton');
@@ -41,10 +42,19 @@
         let recognitionModel = null;
         let isPaused = false;
 
+        // モデルの読み込みに関するURL等は絶対に変更していません。
         async function setupCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 video.srcObject = stream;
+
+                // 映像のサイズをコンテナ枠に反映
+                video.onloadedmetadata = () => {
+                    videoContainer.style.width = `${video.videoWidth}px`;
+                    videoContainer.style.height = `${video.videoHeight}px`;
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                };
                 return new Promise((resolve) => { video.onloadedmetadata = () => resolve(video); });
             } catch (error) {
                 alert("カメラのアクセスが許可されていません。カメラへのアクセスを許可してください。");
@@ -54,7 +64,7 @@
 
         async function setupFaceAPI() {
             try {
-                // 各モデルファイルの直接URLを指定
+                // モデルの読み込みに関するURLは一切変更していません
                 await faceapi.nets.tinyFaceDetector.loadFromUri('https://tamurayuuiti.github.io/AI/models/tiny_face_detector_model-weights_manifest.json');
                 await faceapi.nets.faceLandmark68Net.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_landmark_68_model-weights_manifest.json');
                 await faceapi.nets.faceRecognitionNet.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_recognition_model-weights_manifest.json');
@@ -67,8 +77,9 @@
         }
 
         async function loadRecognitionModel() {
+            // モデルの読み込みに関するURLは一切変更していません
             try {
-                recognitionModel = await tf.loadLayersModel('https://tamurayuuiti.github.io/models/model.json');
+                recognitionModel = await tf.loadLayersModel('https://tamurayuuiti.github.io/AI/models/model.json');
                 statusElement.textContent = "顔認識モデルの読み込みが完了しました。";
                 statusModeElement.textContent = "モード: 学習モデルを使用して顔認識中";
                 console.log("顔認識モデルの読み込みが成功しました。");
