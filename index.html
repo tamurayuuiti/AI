@@ -8,34 +8,89 @@
     <script defer src="libs/tf.min.js"></script>
     <script defer src="libs/face-api.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .container { text-align: center; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 800px; max-width: 100%; }
-        h1 { color: #333; }
-        p { font-size: 18px; color: #666; }
-        .video-container { position: relative; width: 100%; max-width: 720px; height: auto; margin: 20px auto; border: 2px solid #333; border-radius: 8px; overflow: hidden; }
-        video, canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        #status, #statusMode { font-size: 18px; margin-top: 10px; color: #007bff; }
-        #pauseButton { margin-top: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        /* Reset and basic styling */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #0078d7, #82addb); display: flex; justify-content: center; align-items: center; height: 100vh; color: #333; }
 
-        /* スマホの横画面用デザイン調整 */
-        @media (orientation: landscape) and (max-width: 800px) {
-            .container { width: 100%; padding: 10px; }
-            .video-container { max-width: 100%; border-width: 1px; }
-            #status, #statusMode { font-size: 16px; }
-            #pauseButton { font-size: 14px; padding: 8px 16px; }
+        /* Glassmorphism container style */
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            width: 90%;
+            max-width: 700px;
+        }
+        h1 {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        p { font-size: 1rem; color: #fff; margin-bottom: 20px; }
+
+        /* Video and canvas styling */
+        .video-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 640px;
+            aspect-ratio: 4 / 3;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+        video, canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Status text styling */
+        #status, #statusMode {
+            font-size: 1rem;
+            color: #fff;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        /* Button styling */
+        #pauseButton {
+            margin-top: 15px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            color: #0078d7;
+            background: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 120, 215, 0.3);
+        }
+        #pauseButton:hover {
+            background: #e0e0e0;
+        }
+        #pauseButton:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 120, 215, 0.2);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>リアルタイム顔認識システム</h1>
-        <p>カメラ映像に映った人物を認識します。</p>
+        <p>カメラ映像に映った人物をリアルタイムで認識します。</p>
         <div class="video-container" id="videoContainer">
             <video id="video" autoplay muted playsinline></video>
             <canvas id="overlay"></canvas>
         </div>
-        <div id="status">準備中...</div>
-        <div id="statusMode">モード: 確認中...</div>
+        <div id="status">モデルの読み込み中...</div>
+        <div id="statusMode">モード: 初期化中</div>
         <button id="pauseButton">一時停止</button>
     </div>
     <script>
@@ -112,8 +167,8 @@
                     label = recognizeFace(detection.descriptor);
                 }
 
-                ctx.strokeStyle = "green";
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = "lime";
+                ctx.lineWidth = 3;
                 ctx.strokeRect(x, y, width, height);
                 ctx.fillStyle = "white";
                 ctx.font = "18px Arial";
@@ -145,7 +200,6 @@
         });
 
         function adjustVideoSize() {
-            // 常にウィンドウの幅と高さに合わせてサイズを調整
             const width = Math.min(window.innerWidth, video.videoWidth);
             const height = Math.min(window.innerHeight, video.videoHeight);
             videoContainer.style.width = `${width}px`;
@@ -162,17 +216,15 @@
                 adjustVideoSize();
                 requestAnimationFrame(detectFaces);
 
-                // ResizeObserverでビデオサイズを調整
                 const resizeObserver = new ResizeObserver(() => adjustVideoSize());
                 resizeObserver.observe(video);
             });
 
-            // 画面の向きが変わった際にビデオとキャンバスのサイズを再調整して描画リセット
             window.addEventListener('resize', () => {
                 adjustVideoSize();
-                ctx.clearRect(0, 0, canvas.width, canvas.height);  // 描画をリセット
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 if (!isPaused) {
-                    requestAnimationFrame(detectFaces);  // リセット後に再描画
+                    requestAnimationFrame(detectFaces);
                 }
             });
         }
