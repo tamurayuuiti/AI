@@ -156,9 +156,14 @@
                 resizeObserver.observe(video);
             });
 
-            // 画面の向き変更時にビデオとキャンバスのサイズを再調整
-            window.addEventListener('orientationchange', adjustVideoSize);
-            window.addEventListener('resize', adjustVideoSize);
+            // 画面の向きが変わった際にビデオとキャンバスのサイズを再調整して描画リセット
+            window.addEventListener('resize', () => {
+                adjustVideoSize();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);  // 描画をリセット
+                if (!isPaused) {
+                    requestAnimationFrame(detectFaces);  // リセット後に再描画
+                }
+            });
         }
 
         main();
