@@ -48,7 +48,8 @@
                 video.srcObject = stream;
                 return new Promise((resolve) => { 
                     video.onloadedmetadata = () => {
-                        video.play();  // 確実にカメラ映像を再生するために明示的にplay()を呼び出す
+                        video.play();  // カメラアクセス許可後すぐに再生
+                        adjustVideoSize();  // 初期サイズ設定
                         resolve(video);
                     };
                 });
@@ -135,31 +136,28 @@
             isPaused = !isPaused;
         });
 
+        function adjustVideoSize() {
+            videoContainer.style.width = `${video.videoWidth}px`;
+            videoContainer.style.height = `${video.videoHeight}px`;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+        }
+
         async function main() {
             await setupCamera();
             await setupFaceAPI();
             await loadRecognitionModel();
             video.addEventListener('play', () => {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
+                adjustVideoSize();
                 requestAnimationFrame(detectFaces);
 
-                const resizeObserver = new ResizeObserver(() => {
-                    videoContainer.style.width = `${video.videoWidth}px`;
-                    videoContainer.style.height = `${video.videoHeight}px`;
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                });
+                // ResizeObserverでビデオサイズを調整
+                const resizeObserver = new ResizeObserver(() => adjustVideoSize());
                 resizeObserver.observe(video);
             });
 
-            // デバイスの向きが変わったときに、キャンバスサイズを更新
-            window.addEventListener('orientationchange', () => {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                videoContainer.style.width = `${video.videoWidth}px`;
-                videoContainer.style.height = `${video.videoHeight}px`;
-            });
+            // 画面の向きが変わった際にビデオとキャンバスのサイズを再調整
+            window.addEventListener('resize', adjustVideoSize);
         }
 
         main();
