@@ -137,10 +137,13 @@
         });
 
         function adjustVideoSize() {
-            videoContainer.style.width = `${video.videoWidth}px`;
-            videoContainer.style.height = `${video.videoHeight}px`;
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            // ウィンドウの幅と高さに合わせてサイズを調整
+            const width = Math.min(window.innerWidth, video.videoWidth);
+            const height = Math.min(window.innerHeight, video.videoHeight);
+            videoContainer.style.width = `${width}px`;
+            videoContainer.style.height = `${height}px`;
+            canvas.width = width;
+            canvas.height = height;
         }
 
         async function main() {
@@ -161,7 +164,7 @@
                 adjustVideoSize();
                 ctx.clearRect(0, 0, canvas.width, canvas.height);  // 描画をリセット
                 if (!isPaused) {
-                    requestAnimationFrame(detectFaces);  // リセット後に即再描画
+                    requestAnimationFrame(detectFaces);  // リセット後に再描画
                 }
             });
         }
