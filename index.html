@@ -239,7 +239,7 @@
             }
 
             if (isFrameVisible) {
-                drawTestFrame();  // テスト枠線の描画
+                drawTestFrame();
             }
 
             if (!isPaused) {
@@ -263,8 +263,8 @@
         // 枠線表示テスト用の関数
         function drawTestFrame() {
             const frameSize = 150;
-            const centerX = canvas.width / 2 - frameSize / 2;
-            const centerY = canvas.height / 2 - frameSize / 2;
+            const centerX = (canvas.width - frameSize) / 2;
+            const centerY = (canvas.height - frameSize) / 2;
 
             ctx.strokeStyle = "red";
             ctx.lineWidth = 3;
@@ -273,7 +273,13 @@
 
         testFrameButton.addEventListener('click', () => {
             isFrameVisible = !isFrameVisible;
-            console.log(isFrameVisible ? "枠線を表示しました。" : "枠線を非表示にしました。");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);  // 既存の描画をクリア
+            if (isFrameVisible) {
+                drawTestFrame();  // 枠線の描画
+                console.log("枠線を表示しました。");
+            } else {
+                console.log("枠線を非表示にしました。");
+            }
         });
 
         pauseButton.addEventListener('click', () => {
