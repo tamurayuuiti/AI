@@ -201,8 +201,8 @@
         }
 
         async function detectFaces() {
-            console.log("detectFaces function is called.");  // 呼び出しのログ追加
             try {
+                // 強化された顔検出設定
                 const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.5 });
                 const detections = await faceapi.detectAllFaces(video, options).withFaceLandmarks().withFaceDescriptors();
                 
@@ -237,10 +237,6 @@
 
             } catch (error) {
                 console.error("顔検出中にエラーが発生しました:", error);
-            }
-
-            if (isFrameVisible) {
-                drawTestFrame();
             }
 
             if (!isPaused) {
