@@ -197,8 +197,8 @@
         }
 
         async function detectFaces() {
-            // 入力サイズとスコアしきい値を設定して、顔検出精度を向上
-            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.5 });
+            // 強化された顔検出設定
+            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: 0.4 });
             const detections = await faceapi.detectAllFaces(video, options).withFaceLandmarks().withFaceDescriptors();
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -209,13 +209,19 @@
                 console.log("顔が検出されませんでした。");
             }
 
-            detections.forEach(detection => {
+            detections.forEach((detection, index) => {
                 const { x, y, width, height } = detection.detection.box;
                 let label = "Unknown";
 
                 if (recognitionModel) {
                     label = recognizeFace(detection.descriptor);
                 }
+
+                // 顔の詳細情報をコンソールに出力
+                console.log(`顔${index + 1}の詳細情報:`);
+                console.log(`- 位置: x=${x}, y=${y}, width=${width}, height=${height}`);
+                console.log(`- 特徴点:`, detection.landmarks.positions);
+                console.log(`- ディスクリプタ:`, detection.descriptor);
 
                 // 顔枠とラベルの描画
                 ctx.strokeStyle = "lime";
