@@ -9,13 +9,21 @@
     <script defer src="libs/face-api.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .container { text-align: center; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 800px; }
+        .container { text-align: center; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 800px; max-width: 100%; }
         h1 { color: #333; }
         p { font-size: 18px; color: #666; }
         .video-container { position: relative; width: 100%; max-width: 720px; height: auto; margin: 20px auto; border: 2px solid #333; border-radius: 8px; overflow: hidden; }
         video, canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         #status, #statusMode { font-size: 18px; margin-top: 10px; color: #007bff; }
         #pauseButton { margin-top: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; }
+
+        /* スマホの横画面用デザイン調整 */
+        @media (orientation: landscape) and (max-width: 800px) {
+            .container { width: 100%; padding: 10px; }
+            .video-container { max-width: 100%; border-width: 1px; }
+            #status, #statusMode { font-size: 16px; }
+            #pauseButton { font-size: 14px; padding: 8px 16px; }
+        }
     </style>
 </head>
 <body>
