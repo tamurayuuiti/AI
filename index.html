@@ -90,7 +90,13 @@
             .video-container { max-width: 100%; }
         }
         @media (orientation: landscape) and (max-width: 768px) {
-            .container { width: 100%; padding: 10px; }
+            .container {
+                width: 100%;
+                padding: 10px;
+                justify-content: center;
+                height: 100vh;  /* コンテナの高さを画面全体に合わせる */
+            }
+            h1, p { margin-bottom: 8px; }  /* 各要素の余白を縮小 */
             .video-container { max-width: 100%; border-width: 1px; }
             #pauseButton { padding: 8px 16px; font-size: 0.9rem; }
         }
