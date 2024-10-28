@@ -239,7 +239,7 @@
             }
 
             if (isFrameVisible) {
-                drawTestFrame();
+                drawTestFrame();  // テスト枠線の描画
             }
 
             if (!isPaused) {
@@ -273,12 +273,7 @@
 
         testFrameButton.addEventListener('click', () => {
             isFrameVisible = !isFrameVisible;
-            if (isFrameVisible) {
-                console.log("枠線を表示しました。");
-            } else {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                console.log("枠線を非表示にしました。");
-            }
+            console.log(isFrameVisible ? "枠線を表示しました。" : "枠線を非表示にしました。");
         });
 
         pauseButton.addEventListener('click', () => {
