@@ -46,10 +46,10 @@
             position: relative;
             border-radius: 12px;
             overflow: hidden;
-            width: 100%;
+            width: calc(100% - 20px); /* 横に余白を追加 */
             max-width: 640px;
             border: 2px solid rgba(255, 255, 255, 0.7);
-            margin-bottom: 20px;
+            margin: 0 auto 20px auto;
             display: flex;
             justify-content: center;
             height: 60vh;
@@ -165,7 +165,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (detections.length > 0) {
-                console.log("顔が検出されました:", detections.length);
+                console.log(`検出された顔の数: ${detections.length}`);
             } else {
                 console.log("顔が検出されませんでした。");
             }
@@ -178,6 +178,7 @@
                     label = recognizeFace(detection.descriptor);
                 }
 
+                console.log(`顔検出情報: 位置(${x}, ${y}), サイズ(${width}x${height}), ラベル: ${label}`);
                 ctx.strokeStyle = "lime";
                 ctx.lineWidth = 3;
                 ctx.strokeRect(x, y, width, height);
