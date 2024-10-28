@@ -156,7 +156,8 @@
                 resizeObserver.observe(video);
             });
 
-            // 画面の向きが変わった際にビデオとキャンバスのサイズを再調整
+            // 画面の向き変更時にビデオとキャンバスのサイズを再調整
+            window.addEventListener('orientationchange', adjustVideoSize);
             window.addEventListener('resize', adjustVideoSize);
         }
 
