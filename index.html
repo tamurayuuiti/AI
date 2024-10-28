@@ -208,7 +208,7 @@
             }
 
             try {
-                const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: 0.5 });
+                const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: 0.1});
                 const detections = await faceapi.detectAllFaces(video, options).withFaceLandmarks().withFaceDescriptors();
                 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
