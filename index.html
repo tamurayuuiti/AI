@@ -8,7 +8,7 @@
     <script defer src="libs/tf.min.js"></script>
     <script defer src="libs/face-api.min.js"></script>
     <style>
-        /* Reset and basic styling */
+        /* Basic reset and styling */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Arial', sans-serif; background: linear-gradient(135deg, #0078d7, #82addb); display: flex; justify-content: center; align-items: center; height: 100vh; color: #333; }
 
@@ -17,17 +17,13 @@
             text-align: center;
             background: rgba(255, 255, 255, 0.3);
             backdrop-filter: blur(10px);
-            padding: 30px;
+            padding: 20px;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
             width: 90%;
             max-width: 700px;
         }
-        h1 {
-            font-size: 2rem;
-            color: #fff;
-            margin-bottom: 10px;
-        }
+        h1 { font-size: 1.8rem; color: #fff; margin-bottom: 10px; }
         p { font-size: 1rem; color: #fff; margin-bottom: 20px; }
 
         /* Video and canvas styling */
@@ -78,6 +74,19 @@
         #pauseButton:active {
             transform: scale(0.98);
             box-shadow: 0 2px 8px rgba(0, 120, 215, 0.2);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.5rem; }
+            p, #status, #statusMode { font-size: 0.9rem; }
+            #pauseButton { padding: 10px 20px; font-size: 0.9rem; }
+            .container { padding: 15px; }
+        }
+        @media (orientation: landscape) and (max-width: 768px) {
+            .container { width: 100%; padding: 10px; }
+            .video-container { max-width: 100%; border-width: 1px; }
+            #pauseButton { padding: 8px 16px; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -200,8 +209,8 @@
         });
 
         function adjustVideoSize() {
-            const width = Math.min(window.innerWidth, video.videoWidth);
-            const height = Math.min(window.innerHeight, video.videoHeight);
+            const width = Math.min(window.innerWidth * 0.9, video.videoWidth);
+            const height = width * 0.75;  // 4:3 aspect ratio
             videoContainer.style.width = `${width}px`;
             videoContainer.style.height = `${height}px`;
             canvas.width = width;
