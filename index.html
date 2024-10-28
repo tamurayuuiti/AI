@@ -221,10 +221,6 @@
                 ctx.font = "18px Arial";
                 ctx.fillText(label, x, y - 10);
             });
-
-            if (!isPaused) {
-                requestAnimationFrame(detectFaces);
-            }
         }
 
         function recognizeFace(descriptor) {
@@ -234,13 +230,16 @@
             return labelIndex < customClasses.length ? customClasses[labelIndex] : 'Unknown';
         }
 
+        // 100ms間隔で顔検出を実行
+        let detectionInterval;
         pauseButton.addEventListener('click', () => {
             if (isPaused) {
                 video.play();
                 pauseButton.textContent = "一時停止";
-                requestAnimationFrame(detectFaces);
+                detectionInterval = setInterval(detectFaces, 100);  // 100msごとに顔検出
             } else {
                 video.pause();
+                clearInterval(detectionInterval);
                 pauseButton.textContent = "再開";
             }
             isPaused = !isPaused;
@@ -261,18 +260,12 @@
             await loadRecognitionModel();
             video.addEventListener('play', () => {
                 adjustVideoSize();
-                requestAnimationFrame(detectFaces);
-
-                const resizeObserver = new ResizeObserver(() => adjustVideoSize());
-                resizeObserver.observe(video);
+                detectionInterval = setInterval(detectFaces, 100);  // 100msごとに顔検出
             });
 
             window.addEventListener('resize', () => {
                 adjustVideoSize();
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                if (!isPaused) {
-                    requestAnimationFrame(detectFaces);
-                }
             });
         }
 
