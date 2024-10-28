@@ -217,6 +217,7 @@
                     label = recognizeFace(detection.descriptor);
                 }
 
+                // 顔枠とラベルの描画
                 ctx.strokeStyle = "lime";
                 ctx.lineWidth = 3;
                 ctx.strokeRect(x, y, width, height);
@@ -231,6 +232,7 @@
         }
 
         function recognizeFace(descriptor) {
+            if (!recognitionModel) return "Unknown";  // 顔認識モデルがない場合の処理
             const descriptorTensor = tf.tensor([descriptor]);
             const prediction = recognitionModel.predict(descriptorTensor);
             const labelIndex = prediction.argMax(-1).dataSync()[0];
