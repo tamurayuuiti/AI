@@ -46,7 +46,12 @@
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 video.srcObject = stream;
-                return new Promise((resolve) => { video.onloadedmetadata = () => resolve(video); });
+                return new Promise((resolve) => { 
+                    video.onloadedmetadata = () => {
+                        video.play();  // 確実にカメラ映像を再生するために明示的にplay()を呼び出す
+                        resolve(video);
+                    };
+                });
             } catch (error) {
                 alert("カメラのアクセスが許可されていません。カメラへのアクセスを許可してください。");
                 console.error("Error accessing camera:", error);
