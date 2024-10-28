@@ -164,8 +164,8 @@
                     };
                 });
             } catch (error) {
+                console.error("カメラのアクセスに失敗しました:", error);
                 alert("カメラのアクセスが許可されていません。カメラへのアクセスを許可してください。");
-                console.error("Error accessing camera:", error);
             }
         }
 
@@ -197,40 +197,45 @@
         }
 
         async function detectFaces() {
-            // 強化された顔検出設定
-            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: 0.4 });
-            const detections = await faceapi.detectAllFaces(video, options).withFaceLandmarks().withFaceDescriptors();
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            try {
+                // 強化された顔検出設定
+                const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: 0.4 });
+                const detections = await faceapi.detectAllFaces(video, options).withFaceLandmarks().withFaceDescriptors();
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (detections.length > 0) {
-                console.log("顔検出成功:", detections.length, "個の顔が検出されました。");
-            } else {
-                console.log("顔が検出されませんでした。");
-            }
-
-            detections.forEach((detection, index) => {
-                const { x, y, width, height } = detection.detection.box;
-                let label = "Unknown";
-
-                if (recognitionModel) {
-                    label = recognizeFace(detection.descriptor);
+                if (detections.length > 0) {
+                    console.log("顔検出成功:", detections.length, "個の顔が検出されました。");
+                } else {
+                    console.log("顔が検出されませんでした。");
                 }
 
-                // 顔の詳細情報をコンソールに出力
-                console.log(`顔${index + 1}の詳細情報:`);
-                console.log(`- 位置: x=${x}, y=${y}, width=${width}, height=${height}`);
-                console.log(`- 特徴点:`, detection.landmarks.positions);
-                console.log(`- ディスクリプタ:`, detection.descriptor);
+                detections.forEach((detection, index) => {
+                    const { x, y, width, height } = detection.detection.box;
+                    let label = "Unknown";
 
-                // 顔枠とラベルの描画
-                ctx.strokeStyle = "lime";
-                ctx.lineWidth = 3;
-                ctx.strokeRect(x, y, width, height);
-                ctx.fillStyle = "white";
-                ctx.font = "18px Arial";
-                ctx.fillText(label, x, y - 10);
-            });
+                    if (recognitionModel) {
+                        label = recognizeFace(detection.descriptor);
+                    }
+
+                    // 顔の詳細情報をコンソールに出力
+                    console.log(`顔${index + 1}の詳細情報:`);
+                    console.log(`- 位置: x=${x}, y=${y}, width=${width}, height=${height}`);
+                    console.log(`- 特徴点:`, detection.landmarks.positions);
+                    console.log(`- ディスクリプタ:`, detection.descriptor);
+
+                    // 顔枠とラベルの描画
+                    ctx.strokeStyle = "lime";
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(x, y, width, height);
+                    ctx.fillStyle = "white";
+                    ctx.font = "18px Arial";
+                    ctx.fillText(label, x, y - 10);
+                });
+
+            } catch (error) {
+                console.error("顔検出中にエラーが発生しました:", error);
+            }
 
             if (!isPaused) {
                 requestAnimationFrame(detectFaces);
@@ -238,11 +243,16 @@
         }
 
         function recognizeFace(descriptor) {
-            if (!recognitionModel) return "Unknown";  // 顔認識モデルがない場合の処理
-            const descriptorTensor = tf.tensor([descriptor]);
-            const prediction = recognitionModel.predict(descriptorTensor);
-            const labelIndex = prediction.argMax(-1).dataSync()[0];
-            return labelIndex < customClasses.length ? customClasses[labelIndex] : 'Unknown';
+            try {
+                if (!recognitionModel) return "Unknown";  // 顔認識モデルがない場合の処理
+                const descriptorTensor = tf.tensor([descriptor]);
+                const prediction = recognitionModel.predict(descriptorTensor);
+                const labelIndex = prediction.argMax(-1).dataSync()[0];
+                return labelIndex < customClasses.length ? customClasses[labelIndex] : 'Unknown';
+            } catch (error) {
+                console.error("顔認識中にエラーが発生しました:", error);
+                return "Unknown";
+            }
         }
 
         pauseButton.addEventListener('click', () => {
