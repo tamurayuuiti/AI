@@ -3,81 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>画像からの顔検出テスト</title>
-    <!-- face-api.jsの読み込み -->
+    <title>リアルタイム顔認識システム</title>
+    <!-- face-api.jsとtensorflow.jsのローカルファイルを読み込み -->
     <script defer src="libs/tf.min.js"></script>
     <script defer src="libs/face-api.min.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f0f0f0; margin: 0; padding: 20px; }
-        #container { text-align: center; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
-        input[type="file"] { margin-top: 10px; }
-        canvas { margin-top: 20px; border: 2px solid #333; border-radius: 8px; }
-        #status { font-size: 18px; color: #007bff; margin-top: 10px; }
+        /* Basic reset and styling */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0078d7, #82addb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* 画面全体を覆う */
+            color: #333;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); /* ダイナミックアイランド対応 */
+        }
+
+        /* Container style */
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 30px 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            width: 90%;
+            max-width: 700px;
+            margin: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        /* Video and canvas styling */
+        .video-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 640px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            height: 60vh;  /* 映像を縦に大きく表示 */
+            max-height: 60vh;
+        }
+
+        video, canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Status text styling */
+        #status, #statusMode {
+            font-size: 1rem;
+            color: #fff;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        /* Button styling */
+        #pauseButton, #testFrameButton {
+            margin-top: 15px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            color: #0078d7;
+            background: #fff;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 120, 215, 0.3);
+            margin-right: 10px;
+        }
+
+        #pauseButton:hover, #testFrameButton:hover {
+            background: #e0e0e0;
+        }
+
+        #pauseButton:active, #testFrameButton:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 120, 215, 0.2);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.5rem; }
+            p, #status, #statusMode { font-size: 0.9rem; }
+            #pauseButton, #testFrameButton { padding: 10px 20px; font-size: 0.9rem; }
+            .container { padding: 20px; width: 95%; margin: 20px 15px; }
+            .video-container { max-width: 100%; height: 55vh; max-height: 55vh; }
+        }
+
+        @media (orientation: landscape) and (max-width: 768px) {
+            .container {
+                width: 100%;
+                padding: 20px;
+                height: 100vh;
+                margin: 15px 10px;
+            }
+            h1, p { margin-bottom: 5px; }
+            .video-container { max-height: 55vh; }
+            #pauseButton, #testFrameButton { padding: 8px 16px; font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
-    <div id="container">
-        <h1>画像からの顔検出テスト</h1>
-        <p>顔が含まれる画像をアップロードしてください。</p>
-        <input type="file" id="imageUpload" accept="image/*">
-        <div id="status">モデル読み込み中...</div>
-        <canvas id="overlay"></canvas>
+    <div class="container">
+        <h1>リアルタイム顔認識システム</h1>
+        <p>カメラ映像に映った人物をリアルタイムで認識します。</p>
+        <div class="video-container" id="videoContainer">
+            <video id="video" autoplay muted playsinline></video>
+            <canvas id="overlay"></canvas>
+        </div>
+        <div id="status">モデルの読み込み中...</div>
+        <div id="statusMode">モード: 初期化中</div>
+        <button id="pauseButton">一時停止</button>
+        <button id="testFrameButton">枠線表示テスト</button>
     </div>
     <script>
+        const video = document.getElementById('video');
         const canvas = document.getElementById('overlay');
         const ctx = canvas.getContext('2d');
         const statusElement = document.getElementById('status');
-        const imageUpload = document.getElementById('imageUpload');
-        
-        async function loadModels() {
-            // モデルの読み込み。指定URLは変更禁止
-            await faceapi.nets.tinyFaceDetector.loadFromUri('https://tamurayuuiti.github.io/AI/models/tiny_face_detector_model-weights_manifest.json');
-            await faceapi.nets.faceLandmark68Net.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_landmark_68_model-weights_manifest.json');
-            await faceapi.nets.faceRecognitionNet.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_recognition_model-weights_manifest.json');
-            statusElement.textContent = "モデルの読み込みが完了しました。画像をアップロードしてください。";
+        const statusModeElement = document.getElementById('statusMode');
+        const pauseButton = document.getElementById('pauseButton');
+        const testFrameButton = document.getElementById('testFrameButton');
+        const videoContainer = document.getElementById('videoContainer');
+        const customClasses = ['Daiki_Tode', 'Haruna_Oguro', 'Himeka_Kugai', 'Honoka_Nishikawa', 'Nonoka_Sato', 'Shohei_Otsuka', 'Taiki_Kimura', 'Yuna_Katayose'];
+        let recognitionModel = null;
+        let isPaused = false;
+        let isFrameVisible = false;  // 枠線の表示状態
+
+        async function setupCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = stream;
+                return new Promise((resolve) => { 
+                    video.onloadedmetadata = () => {
+                        video.play();  // カメラアクセス許可後すぐに再生
+                        adjustVideoSize();  // 初期サイズ設定
+                        resolve(video);
+                    };
+                });
+            } catch (error) {
+                console.error("カメラのアクセスに失敗しました:", error);
+                alert("カメラのアクセスが許可されていません。カメラへのアクセスを許可してください。");
+            }
         }
 
-        async function detectFaces(image) {
-            statusElement.textContent = "顔検出中...";
-            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.5 });
-            const detections = await faceapi.detectAllFaces(image, options).withFaceLandmarks().withFaceDescriptors();
+        async function setupFaceAPI() {
+            try {
+                // モデルURL部分の変更禁止
+                await faceapi.nets.tinyFaceDetector.loadFromUri('https://tamurayuuiti.github.io/AI/models/tiny_face_detector_model-weights_manifest.json');
+                await faceapi.nets.faceLandmark68Net.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_landmark_68_model-weights_manifest.json');
+                await faceapi.nets.faceRecognitionNet.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_recognition_model-weights_manifest.json');
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (detections.length > 0) {
-                console.log("顔検出成功:", detections.length, "個の顔が検出されました。");
+                statusElement.textContent = "顔検出モデルの読み込みが完了しました。";
+                console.log("顔検出モデルの読み込みが成功しました。");
+            } catch (error) {
+                console.error("顔検出モデルの読み込みに失敗しました:", error);
+                alert("モデル読み込みに失敗しました。再読み込みをお試しください。");
+            }
+        }
+
+        async function loadRecognitionModel() {
+            try {
+                recognitionModel = await tf.loadLayersModel('https://tamurayuuiti.github.io/models/model.json');
+                statusElement.textContent = "顔認識モデルの読み込みが完了しました。";
+                statusModeElement.textContent = "モード: 学習モデルを使用して顔認識中";
+                console.log("顔認識モデルの読み込みが成功しました。");
+            } catch (error) {
+                console.warn("顔認識モデルが見つかりません。顔検出のみを行います。");
+                console.error("Error loading recognition model:", error);
+                statusModeElement.textContent = "モード: 顔検出のみ実行中";
+            }
+        }
+
+        async function detectFaces() {
+            try {
+                if (!video || video.readyState < 2) {
+                    console.error("ビデオがロードされていません。");
+                    return;
+                }
+
+                if (!faceapi.nets.tinyFaceDetector.params) {
+                    console.error("TinyFaceDetectorが正しくロードされていません。");
+                    return;
+                }
+
+                const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.5 });
+                const detections = await faceapi.detectAllFaces(video, options).withFaceLandmarks().withFaceDescriptors();
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                if (detections.length > 0) {
+                    console.log("顔検出成功:", detections.length, "個の顔が検出されました。");
+                } else {
+                    console.warn("顔が検出されませんでした。スコアしきい値、または検出オプションを調整してください。");
+                }
+
                 detections.forEach((detection, index) => {
                     const { x, y, width, height } = detection.detection.box;
+                    let label = "Unknown";
+
+                    if (recognitionModel) {
+                        label = recognizeFace(detection.descriptor);
+                    }
+
+                    console.log(`顔${index + 1}の詳細情報:`);
+                    console.log(`- 位置: x=${x}, y=${y}, width=${width}, height=${height}`);
+                    console.log(`- 特徴点:`, detection.landmarks.positions);
+                    console.log(`- ディスクリプタ:`, detection.descriptor);
 
                     ctx.strokeStyle = "lime";
                     ctx.lineWidth = 3;
                     ctx.strokeRect(x, y, width, height);
                     ctx.fillStyle = "white";
                     ctx.font = "18px Arial";
-                    ctx.fillText(`顔${index + 1}`, x, y - 10);
+                    ctx.fillText(label, x, y - 10);
                 });
-                statusElement.textContent = `${detections.length}個の顔が検出されました。`;
-            } else {
-                console.log("顔が検出されませんでした。");
-                statusElement.textContent = "顔が検出されませんでした。";
+
+            } catch (error) {
+                console.error("顔検出中にエラーが発生しました:", error);
+            }
+
+            if (!isPaused) {
+                requestAnimationFrame(detectFaces);
             }
         }
 
-        imageUpload.addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
+        function recognizeFace(descriptor) {
+            try {
+                if (!recognitionModel) return "Unknown";  // 顔認識モデルがない場合の処理
+                const descriptorTensor = tf.tensor([descriptor]);
+                const prediction = recognitionModel.predict(descriptorTensor);
+                const labelIndex = prediction.argMax(-1).dataSync()[0];
+                return labelIndex < customClasses.length ? customClasses[labelIndex] : 'Unknown';
+            } catch (error) {
+                console.error("顔認識中にエラーが発生しました:", error);
+                return "Unknown";
+            }
+        }
 
-            const image = new Image();
-            image.onload = async () => {
-                canvas.width = image.width;
-                canvas.height = image.height;
-                ctx.drawImage(image, 0, 0);
-                await detectFaces(image);
-            };
-            image.src = URL.createObjectURL(file);
+        testFrameButton.addEventListener('click', () => {
+            isFrameVisible = !isFrameVisible;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);  // 既存の描画をクリア
+            if (isFrameVisible) {
+                drawTestFrame();  // 枠線の描画
+                console.log("枠線を表示しました。");
+            } else {
+                console.log("枠線を非表示にしました。");
+            }
         });
 
-        loadModels();
+        pauseButton.addEventListener('click', () => {
+            if (isPaused) {
+                video.play();
+                pauseButton.textContent = "一時停止";
+                requestAnimationFrame(detectFaces);
+            } else {
+                video.pause();
+                pauseButton.textContent = "再開";
+            }
+            isPaused = !isPaused;
+        });
+
+        function adjustVideoSize() {
+            const width = Math.min(window.innerWidth * 0.9, video.videoWidth);
+            const height = width * 0.75;
+            videoContainer.style.width = `${width}px`;
+            videoContainer.style.height = `${height}px`;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        async function main() {
+            await setupCamera();
+            await setupFaceAPI();
+            await loadRecognitionModel();
+            video.addEventListener('play', () => {
+                adjustVideoSize();
+                requestAnimationFrame(detectFaces);
+
+                const resizeObserver = new ResizeObserver(() => adjustVideoSize());
+                resizeObserver.observe(video);
+            });
+
+            window.addEventListener('resize', () => {
+                adjustVideoSize();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (!isPaused) {
+                    requestAnimationFrame(detectFaces);
+                }
+            });
+        }
+
+        main();
     </script>
 </body>
 </html>
