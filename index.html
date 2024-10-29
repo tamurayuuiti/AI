@@ -155,6 +155,7 @@
         let recognitionModel = null;
         let isPaused = false;
         let isFrameVisible = false;  // 枠線の表示状態
+        let detectionInterval;  // setIntervalのID
 
         async function setupCamera() {
             try {
@@ -238,10 +239,6 @@
             } catch (error) {
                 console.error("顔検出中にエラーが発生しました:", error);
             }
-
-            if (!isPaused) {
-                requestAnimationFrame(detectFaces);
-            }
         }
 
         function recognizeFace(descriptor) {
@@ -283,10 +280,11 @@
             if (isPaused) {
                 video.play();
                 pauseButton.textContent = "一時停止";
-                requestAnimationFrame(detectFaces);
+                detectionInterval = setInterval(detectFaces, 100); // 100msごとに顔検出
             } else {
                 video.pause();
                 pauseButton.textContent = "再開";
+                clearInterval(detectionInterval); // 一時停止時に検出を停止
             }
             isPaused = !isPaused;
         });
@@ -306,7 +304,7 @@
             await loadRecognitionModel();
             video.addEventListener('play', () => {
                 adjustVideoSize();
-                requestAnimationFrame(detectFaces);
+                detectionInterval = setInterval(detectFaces, 100); // 初期再生時に100msごとに検出
 
                 const resizeObserver = new ResizeObserver(() => adjustVideoSize());
                 resizeObserver.observe(video);
@@ -315,9 +313,6 @@
             window.addEventListener('resize', () => {
                 adjustVideoSize();
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                if (!isPaused) {
-                    requestAnimationFrame(detectFaces);
-                }
             });
         }
 
