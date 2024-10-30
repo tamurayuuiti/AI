@@ -194,58 +194,64 @@
         }
 
         async function detectFaces() {
-    try {
-        // 検出パラメータの設定を調整
-        const options = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 });
-        const detections = await faceapi.detectAllFaces(video, options)
-            .withFaceLandmarks()
-            .withFaceDescriptors()
-            .withFaceExpressions()
-            .withAgeAndGender();
+            try {
+                const options = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 });
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // カメラ映像が正常にモデルに読み込まれているかを確認するログを追加
+                if (video.readyState >= 2) {
+                    console.log("カメラ映像が正常に読み込まれ、モデルに入力されます。");
+                } else {
+                    console.log("カメラ映像が正常に読み込まれていません。");
+                }
 
-        if (detections.length > 0) {
-            console.log("顔検出成功:", detections.length, "個の顔が検出されました。");
-        } else {
-            console.log("顔が検出されませんでした。");
-        }
-        
-        detections.forEach((detection, index) => {
-            const { x, y, width, height } = detection.detection.box;
-            let label = "Unknown";
-            
-            if (recognitionModel) {
-                label = recognizeFace(detection.descriptor);
+                const detections = await faceapi.detectAllFaces(video, options)
+                    .withFaceLandmarks()
+                    .withFaceDescriptors()
+                    .withFaceExpressions()
+                    .withAgeAndGender();
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                if (detections.length > 0) {
+                    console.log("顔検出成功:", detections.length, "個の顔が検出されました。");
+                } else {
+                    console.log("顔が検出されませんでした。");
+                }
+
+                detections.forEach((detection, index) => {
+                    const { x, y, width, height } = detection.detection.box;
+                    let label = "Unknown";
+
+                    if (recognitionModel) {
+                        label = recognizeFace(detection.descriptor);
+                    }
+
+                    const expressions = detection.expressions;
+                    const age = detection.age.toFixed(1);
+                    const gender = detection.gender;
+
+                    console.log(`顔${index + 1}の詳細情報:`);
+                    console.log(`- 位置: x=${x}, y=${y}, width=${width}, height=${height}`);
+                    console.log(`- 表情:`, expressions);
+                    console.log(`- 年齢: ${age}`);
+                    console.log(`- 性別: ${gender}`);
+
+                    ctx.strokeStyle = "lime";
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(x, y, width, height);
+                    ctx.fillStyle = "white";
+                    ctx.font = "18px Arial";
+                    ctx.fillText(`${label} (${gender}, ${age}歳)`, x, y - 10);
+                });
+
+            } catch (error) {
+                console.error("顔検出中にエラーが発生しました:", error);
             }
 
-            const expressions = detection.expressions;
-            const age = detection.age.toFixed(1);
-            const gender = detection.gender;
-
-            console.log(`顔${index + 1}の詳細情報:`);
-            console.log(`- 位置: x=${x}, y=${y}, width=${width}, height=${height}`);
-            console.log(`- 表情:`, expressions);
-            console.log(`- 年齢: ${age}`);
-            console.log(`- 性別: ${gender}`);
-
-            ctx.strokeStyle = "lime";
-            ctx.lineWidth = 3;
-            ctx.strokeRect(x, y, width, height);
-            ctx.fillStyle = "white";
-            ctx.font = "18px Arial";
-            ctx.fillText(`${label} (${gender}, ${age}歳)`, x, y - 10);
-        });
-
-    } catch (error) {
-        console.error("顔検出中にエラーが発生しました:", error);
-    }
-
-    if (!isPaused) {
-        requestAnimationFrame(detectFaces);
-    }
-}
-
+            if (!isPaused) {
+                requestAnimationFrame(detectFaces);
+            }
+        }
 
         function recognizeFace(descriptor) {
             try {
