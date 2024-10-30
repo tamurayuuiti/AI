@@ -131,7 +131,6 @@
 
         async function setupCamera() {
             try {
-                // カメラ映像の取得、まず背面カメラを試し、失敗したら前面カメラにフォールバック
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: { ideal: "environment" } }
                 });
@@ -166,12 +165,13 @@
 
         async function setupFaceAPI() {
             try {
-                await faceapi.nets.ssdMobilenetv1.loadFromUri('/AI/models/ssd_mobilenetv1_model-weights_manifest.json'); 
-                await faceapi.nets.tinyFaceDetector.loadFromUri('/models/tiny_face_detector_model-weights_manifest.json'); 
-                await faceapi.nets.faceLandmark68Net.loadFromUri('/models/face_landmark_68_model-weights_manifest.json'); 
-                await faceapi.nets.faceRecognitionNet.loadFromUri('/models/face_recognition_model-weights_manifest.json'); 
-                await faceapi.nets.faceExpressionNet.loadFromUri('/models/face_expression_model-weights_manifest.json'); 
-                await faceapi.nets.ageGenderNet.loadFromUri('/models/age_gender_model-weights_manifest.json'); 
+                // モデルURL部分の変更禁止（指定された新しいURLを使用）
+                await faceapi.nets.ssdMobilenetv1.loadFromUri('https://tamurayuuiti.github.io/AI/models/ssd_mobilenetv1_model-weights_manifest.json'); 
+                await faceapi.nets.tinyFaceDetector.loadFromUri('https://tamurayuuiti.github.io/AI/models/tiny_face_detector_model-weights_manifest.json'); 
+                await faceapi.nets.faceLandmark68Net.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_landmark_68_model-weights_manifest.json'); 
+                await faceapi.nets.faceRecognitionNet.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_recognition_model-weights_manifest.json'); 
+                await faceapi.nets.faceExpressionNet.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_expression_model-weights_manifest.json'); 
+                await faceapi.nets.ageGenderNet.loadFromUri('https://tamurayuuiti.github.io/AI/models/age_gender_model-weights_manifest.json'); 
 
                 statusElement.textContent = "すべてのモデルの読み込みが完了しました。";
                 console.log("すべてのモデルの読み込みが成功しました。");
