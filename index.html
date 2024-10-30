@@ -148,13 +148,12 @@
 
         async function setupFaceAPI() {
             try {
-                // モデルURL部分の変更禁止（追加モデルも含む）
-                await faceapi.nets.ssdMobilenetv1.loadFromUri('/models/ssd_mobilenetv1_model-weights_manifest.json'); // 精度の高い顔検出モデル
+                await faceapi.nets.ssdMobilenetv1.loadFromUri('/models/ssd_mobilenetv1_model-weights_manifest.json'); 
                 await faceapi.nets.tinyFaceDetector.loadFromUri('/models/tiny_face_detector_model-weights_manifest.json'); 
                 await faceapi.nets.faceLandmark68Net.loadFromUri('/models/face_landmark_68_model-weights_manifest.json'); 
                 await faceapi.nets.faceRecognitionNet.loadFromUri('/models/face_recognition_model-weights_manifest.json'); 
-                await faceapi.nets.faceExpressionNet.loadFromUri('/models/face_expression_model-weights_manifest.json'); // 表情認識
-                await faceapi.nets.ageGenderNet.loadFromUri('/models/age_gender_model-weights_manifest.json'); // 年齢と性別認識
+                await faceapi.nets.faceExpressionNet.loadFromUri('/models/face_expression_model-weights_manifest.json'); 
+                await faceapi.nets.ageGenderNet.loadFromUri('/models/age_gender_model-weights_manifest.json'); 
 
                 statusElement.textContent = "すべてのモデルの読み込みが完了しました。";
                 console.log("すべてのモデルの読み込みが成功しました。");
@@ -240,6 +239,40 @@
                 return "Unknown";
             }
         }
+
+        // 枠線表示テスト用の関数
+        function drawTestFrame() {
+            const frameSize = 150;
+            const centerX = (canvas.width - frameSize) / 2;
+            const centerY = (canvas.height - frameSize) / 2;
+
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(centerX, centerY, frameSize, frameSize);
+        }
+
+        testFrameButton.addEventListener('click', () => {
+            isFrameVisible = !isFrameVisible;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);  
+            if (isFrameVisible) {
+                drawTestFrame();
+                console.log("枠線を表示しました。");
+            } else {
+                console.log("枠線を非表示にしました。");
+            }
+        });
+
+        pauseButton.addEventListener('click', () => {
+            if (isPaused) {
+                video.play();
+                pauseButton.textContent = "一時停止";
+                requestAnimationFrame(detectFaces);
+            } else {
+                video.pause();
+                pauseButton.textContent = "再開";
+            }
+            isPaused = !isPaused;
+        });
 
         function adjustVideoSize() {
             const width = Math.min(window.innerWidth * 0.9, video.videoWidth);
