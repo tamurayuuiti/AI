@@ -131,7 +131,10 @@
 
         async function setupCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                // カメラ映像の取得、まず背面カメラを試し、失敗したら前面カメラにフォールバック
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: "environment" } }
+                });
                 video.srcObject = stream;
                 return new Promise((resolve) => { 
                     video.onloadedmetadata = () => {
@@ -141,8 +144,23 @@
                     };
                 });
             } catch (error) {
-                console.error("カメラのアクセスに失敗しました:", error);
-                alert("カメラのアクセスが許可されていません。カメラへのアクセスを許可してください。");
+                console.warn("背面カメラが取得できませんでした。前面カメラに切り替えます。");
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: { ideal: "user" } }
+                    });
+                    video.srcObject = stream;
+                    return new Promise((resolve) => { 
+                        video.onloadedmetadata = () => {
+                            video.play();
+                            adjustVideoSize();
+                            resolve(video);
+                        };
+                    });
+                } catch (error) {
+                    console.error("カメラのアクセスに失敗しました:", error);
+                    alert("カメラのアクセスが許可されていません。カメラへのアクセスを許可してください。");
+                }
             }
         }
 
@@ -240,7 +258,6 @@
             }
         }
 
-        // 枠線表示テスト用の関数
         function drawTestFrame() {
             const frameSize = 150;
             const centerX = (canvas.width - frameSize) / 2;
