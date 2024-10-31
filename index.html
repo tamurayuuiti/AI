@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>アップロード画像からの顔認識システム</title>
+    <title>画像アップロードによる顔認識システム</title>
     <!-- face-api.jsとtensorflow.jsのローカルファイルを読み込み -->
     <script defer src="libs/tf.min.js"></script>
     <script defer src="libs/face-api.min.js"></script>
@@ -36,7 +36,7 @@
         }
         h1 { font-size: 1.8rem; color: #fff; margin-bottom: 10px; }
         p { font-size: 1rem; color: #fff; margin-bottom: 20px; }
-        .video-container {
+        .image-container {
             position: relative;
             border-radius: 12px;
             overflow: hidden;
@@ -46,16 +46,10 @@
             margin-bottom: 20px;
             display: flex;
             justify-content: center;
-            height: 60vh;
-            max-height: 60vh;
         }
-        video, canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
+        img, canvas {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
         }
         #status, #statusMode {
             font-size: 1rem;
@@ -75,43 +69,39 @@
             font-weight: bold;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 120, 215, 0.3);
-            margin-right: 10px;
         }
         #uploadButton:hover { background: #e0e0e0; }
         #uploadButton:active {
             transform: scale(0.98);
             box-shadow: 0 2px 8px rgba(0, 120, 215, 0.2);
         }
-        @media (max-width: 768px) {
-            h1 { font-size: 1.5rem; }
-            p, #status, #statusMode { font-size: 0.9rem; }
-            #uploadButton { padding: 10px 20px; font-size: 0.9rem; }
-            .container { padding: 20px; width: 95%; margin: 20px 15px; }
-            .video-container { max-width: 100%; height: 55vh; max-height: 55vh; }
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>アップロード画像からの顔認識システム</h1>
-        <p>アップロードした画像内の顔を認識します。</p>
-        <div class="video-container" id="videoContainer">
+        <h1>画像アップロードによる顔認識システム</h1>
+        <p>画像をアップロードして顔認識を行います。</p>
+        <input type="file" id="imageUpload" accept="image/*">
+        <div class="image-container">
+            <img id="uploadedImage" alt="アップロードされた画像" style="display: none;">
             <canvas id="overlay"></canvas>
         </div>
-        <input type="file" id="uploadButton" accept="image/*">
         <div id="status">モデルの読み込み中...</div>
         <div id="statusMode">モード: 初期化中</div>
     </div>
     <script>
+        const uploadedImage = document.getElementById('uploadedImage');
         const canvas = document.getElementById('overlay');
         const ctx = canvas.getContext('2d');
         const statusElement = document.getElementById('status');
         const statusModeElement = document.getElementById('statusMode');
-        const uploadButton = document.getElementById('uploadButton');
+        const imageUpload = document.getElementById('imageUpload');
+        const customClasses = ['Daiki_Tode', 'Haruna_Oguro', 'Himeka_Kugai', 'Honoka_Nishikawa', 'Nonoka_Sato', 'Shohei_Otsuka', 'Taiki_Kimura', 'Yuna_Katayose'];
         let recognitionModel = null;
 
         async function setupFaceAPI() {
             try {
+                // モデルURL部分の変更禁止（指定された新しいURLを使用）
                 await faceapi.nets.ssdMobilenetv1.loadFromUri('https://tamurayuuiti.github.io/AI/models/ssd_mobilenetv1_model-weights_manifest.json'); 
                 await faceapi.nets.tinyFaceDetector.loadFromUri('https://tamurayuuiti.github.io/AI/models/tiny_face_detector_model-weights_manifest.json'); 
                 await faceapi.nets.faceLandmark68Net.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_landmark_68_model-weights_manifest.json'); 
@@ -139,35 +129,48 @@
             }
         }
 
-        async function detectFacesFromImage(image) {
+        async function detectFaces(imageElement) {
             try {
-                // Canvasと画像のサイズを一致させる
-                canvas.width = image.width;
-                canvas.height = image.height;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-                // 顔検出を実行
                 const options = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 });
-                const detections = await faceapi.detectAllFaces(image, options)
+
+                const detections = await faceapi.detectAllFaces(imageElement, options)
                     .withFaceLandmarks()
                     .withFaceDescriptors()
                     .withFaceExpressions()
                     .withAgeAndGender();
 
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                canvas.width = imageElement.width;
+                canvas.height = imageElement.height;
+
                 if (detections.length > 0) {
                     console.log("顔検出成功:", detections.length, "個の顔が検出されました。");
-                    statusModeElement.textContent = `顔検出成功: ${detections.length} 個の顔が検出されました`;
                 } else {
                     console.log("顔が検出されませんでした。");
-                    statusModeElement.textContent = "顔が検出されませんでした";
                 }
 
                 detections.forEach(detection => {
                     const { x, y, width, height } = detection.detection.box;
+                    let label = "Unknown";
+
+                    if (recognitionModel) {
+                        label = recognizeFace(detection.descriptor);
+                    }
+
+                    const expressions = detection.expressions;
+                    const age = detection.age.toFixed(1);
+                    const gender = detection.gender;
+
+                    console.log("顔の詳細情報:", {
+                        x, y, width, height, label, expressions, age, gender
+                    });
+
                     ctx.strokeStyle = "lime";
                     ctx.lineWidth = 3;
                     ctx.strokeRect(x, y, width, height);
+                    ctx.fillStyle = "white";
+                    ctx.font = "18px Arial";
+                    ctx.fillText(`${label} (${gender}, ${age}歳)`, x, y - 10);
                 });
 
             } catch (error) {
@@ -175,14 +178,28 @@
             }
         }
 
-        uploadButton.addEventListener('change', async (event) => {
+        function recognizeFace(descriptor) {
+            try {
+                if (!recognitionModel) return "Unknown";
+                const descriptorTensor = tf.tensor([descriptor]);
+                const prediction = recognitionModel.predict(descriptorTensor);
+                const labelIndex = prediction.argMax(-1).dataSync()[0];
+                return labelIndex < customClasses.length ? customClasses[labelIndex] : 'Unknown';
+            } catch (error) {
+                console.error("顔認識中にエラーが発生しました:", error);
+                return "Unknown";
+            }
+        }
+
+        imageUpload.addEventListener('change', async (event) => {
             const file = event.target.files[0];
             if (file) {
-                const img = new Image();
-                img.onload = async () => {
-                    await detectFacesFromImage(img);  // アップロード画像から顔検出を実行
+                const imageURL = URL.createObjectURL(file);
+                uploadedImage.src = imageURL;
+                uploadedImage.onload = async () => {
+                    uploadedImage.style.display = 'block';
+                    await detectFaces(uploadedImage);
                 };
-                img.src = URL.createObjectURL(file);
             }
         });
 
