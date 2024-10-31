@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>リアルタイム顔認識システム</title>
+    <title>アップロード画像からの顔認識システム</title>
     <!-- face-api.jsとtensorflow.jsのローカルファイルを読み込み -->
     <script defer src="libs/tf.min.js"></script>
     <script defer src="libs/face-api.min.js"></script>
@@ -63,7 +63,7 @@
             margin-top: 10px;
             font-weight: 500;
         }
-        #pauseButton, #testFrameButton {
+        #uploadButton {
             margin-top: 15px;
             padding: 12px 25px;
             font-size: 1rem;
@@ -77,95 +77,41 @@
             box-shadow: 0 4px 12px rgba(0, 120, 215, 0.3);
             margin-right: 10px;
         }
-        #pauseButton:hover, #testFrameButton:hover { background: #e0e0e0; }
-        #pauseButton:active, #testFrameButton:active {
+        #uploadButton:hover { background: #e0e0e0; }
+        #uploadButton:active {
             transform: scale(0.98);
             box-shadow: 0 2px 8px rgba(0, 120, 215, 0.2);
         }
         @media (max-width: 768px) {
             h1 { font-size: 1.5rem; }
             p, #status, #statusMode { font-size: 0.9rem; }
-            #pauseButton, #testFrameButton { padding: 10px 20px; font-size: 0.9rem; }
+            #uploadButton { padding: 10px 20px; font-size: 0.9rem; }
             .container { padding: 20px; width: 95%; margin: 20px 15px; }
             .video-container { max-width: 100%; height: 55vh; max-height: 55vh; }
-        }
-        @media (orientation: landscape) and (max-width: 768px) {
-            .container {
-                width: 100%;
-                padding: 20px;
-                height: 100vh;
-                margin: 15px 10px;
-            }
-            h1, p { margin-bottom: 5px; }
-            .video-container { max-height: 55vh; }
-            #pauseButton, #testFrameButton { padding: 8px 16px; font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>リアルタイム顔認識システム</h1>
-        <p>カメラ映像に映った人物をリアルタイムで認識します。</p>
+        <h1>アップロード画像からの顔認識システム</h1>
+        <p>アップロードした画像内の顔を認識します。</p>
         <div class="video-container" id="videoContainer">
-            <video id="video" autoplay muted playsinline></video>
             <canvas id="overlay"></canvas>
         </div>
+        <input type="file" id="uploadButton" accept="image/*">
         <div id="status">モデルの読み込み中...</div>
         <div id="statusMode">モード: 初期化中</div>
-        <button id="pauseButton">一時停止</button>
-        <button id="testFrameButton">枠線表示テスト</button>
     </div>
     <script>
-        const video = document.getElementById('video');
         const canvas = document.getElementById('overlay');
         const ctx = canvas.getContext('2d');
         const statusElement = document.getElementById('status');
         const statusModeElement = document.getElementById('statusMode');
-        const pauseButton = document.getElementById('pauseButton');
-        const testFrameButton = document.getElementById('testFrameButton');
-        const videoContainer = document.getElementById('videoContainer');
-        const customClasses = ['Daiki_Tode', 'Haruna_Oguro', 'Himeka_Kugai', 'Honoka_Nishikawa', 'Nonoka_Sato', 'Shohei_Otsuka', 'Taiki_Kimura', 'Yuna_Katayose'];
+        const uploadButton = document.getElementById('uploadButton');
         let recognitionModel = null;
-        let isPaused = false;
-        let isFrameVisible = false;
-
-        async function setupCamera() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: { ideal: "environment" } }
-                });
-                video.srcObject = stream;
-                return new Promise((resolve) => { 
-                    video.onloadedmetadata = () => {
-                        video.play();
-                        adjustVideoSize();
-                        resolve(video);
-                    };
-                });
-            } catch (error) {
-                console.warn("背面カメラが取得できませんでした。前面カメラに切り替えます。");
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: { ideal: "user" } }
-                    });
-                    video.srcObject = stream;
-                    return new Promise((resolve) => { 
-                        video.onloadedmetadata = () => {
-                            video.play();
-                            adjustVideoSize();
-                            resolve(video);
-                        };
-                    });
-                } catch (error) {
-                    console.error("カメラのアクセスに失敗しました:", error);
-                    alert("カメラのアクセスが許可されていません。カメラへのアクセスを許可してください。");
-                }
-            }
-        }
 
         async function setupFaceAPI() {
             try {
-                // モデルURL部分の変更禁止（指定された新しいURLを使用）
                 await faceapi.nets.ssdMobilenetv1.loadFromUri('https://tamurayuuiti.github.io/AI/models/ssd_mobilenetv1_model-weights_manifest.json'); 
                 await faceapi.nets.tinyFaceDetector.loadFromUri('https://tamurayuuiti.github.io/AI/models/tiny_face_detector_model-weights_manifest.json'); 
                 await faceapi.nets.faceLandmark68Net.loadFromUri('https://tamurayuuiti.github.io/AI/models/face_landmark_68_model-weights_manifest.json'); 
@@ -193,129 +139,56 @@
             }
         }
 
-        async function detectFaces() {
+        async function detectFacesFromImage(image) {
             try {
+                // Canvasと画像のサイズを一致させる
+                canvas.width = image.width;
+                canvas.height = image.height;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                // 顔検出を実行
                 const options = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 });
-
-                // カメラ映像が正常にモデルに読み込まれているかを確認するログを追加
-                if (video.readyState >= 2) {
-                    console.log("カメラ映像が正常に読み込まれ、モデルに入力されます。");
-                } else {
-                    console.log("カメラ映像が正常に読み込まれていません。");
-                }
-
-                const detections = await faceapi.detectAllFaces(video, options)
+                const detections = await faceapi.detectAllFaces(image, options)
                     .withFaceLandmarks()
                     .withFaceDescriptors()
                     .withFaceExpressions()
                     .withAgeAndGender();
 
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
                 if (detections.length > 0) {
                     console.log("顔検出成功:", detections.length, "個の顔が検出されました。");
+                    statusModeElement.textContent = `顔検出成功: ${detections.length} 個の顔が検出されました`;
                 } else {
                     console.log("顔が検出されませんでした。");
+                    statusModeElement.textContent = "顔が検出されませんでした";
                 }
 
-                detections.forEach((detection, index) => {
+                detections.forEach(detection => {
                     const { x, y, width, height } = detection.detection.box;
-                    let label = "Unknown";
-
-                    if (recognitionModel) {
-                        label = recognizeFace(detection.descriptor);
-                    }
-
-                    const expressions = detection.expressions;
-                    const age = detection.age.toFixed(1);
-                    const gender = detection.gender;
-
-                    console.log(`顔${index + 1}の詳細情報:`);
-                    console.log(`- 位置: x=${x}, y=${y}, width=${width}, height=${height}`);
-                    console.log(`- 表情:`, expressions);
-                    console.log(`- 年齢: ${age}`);
-                    console.log(`- 性別: ${gender}`);
-
                     ctx.strokeStyle = "lime";
                     ctx.lineWidth = 3;
                     ctx.strokeRect(x, y, width, height);
-                    ctx.fillStyle = "white";
-                    ctx.font = "18px Arial";
-                    ctx.fillText(`${label} (${gender}, ${age}歳)`, x, y - 10);
                 });
 
             } catch (error) {
                 console.error("顔検出中にエラーが発生しました:", error);
             }
-
-            if (!isPaused) {
-                requestAnimationFrame(detectFaces);
-            }
         }
 
-        function recognizeFace(descriptor) {
-            try {
-                if (!recognitionModel) return "Unknown";
-                const descriptorTensor = tf.tensor([descriptor]);
-                const prediction = recognitionModel.predict(descriptorTensor);
-                const labelIndex = prediction.argMax(-1).dataSync()[0];
-                return labelIndex < customClasses.length ? customClasses[labelIndex] : 'Unknown';
-            } catch (error) {
-                console.error("顔認識中にエラーが発生しました:", error);
-                return "Unknown";
-            }
-        }
-
-        function drawTestFrame() {
-            const frameSize = 150;
-            const centerX = (canvas.width - frameSize) / 2;
-            const centerY = (canvas.height - frameSize) / 2;
-
-            ctx.strokeStyle = "red";
-            ctx.lineWidth = 3;
-            ctx.strokeRect(centerX, centerY, frameSize, frameSize);
-        }
-
-        testFrameButton.addEventListener('click', () => {
-            isFrameVisible = !isFrameVisible;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);  
-            if (isFrameVisible) {
-                drawTestFrame();
-                console.log("枠線を表示しました。");
-            } else {
-                console.log("枠線を非表示にしました。");
+        uploadButton.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const img = new Image();
+                img.onload = async () => {
+                    await detectFacesFromImage(img);  // アップロード画像から顔検出を実行
+                };
+                img.src = URL.createObjectURL(file);
             }
         });
-
-        pauseButton.addEventListener('click', () => {
-            if (isPaused) {
-                video.play();
-                pauseButton.textContent = "一時停止";
-                requestAnimationFrame(detectFaces);
-            } else {
-                video.pause();
-                pauseButton.textContent = "再開";
-            }
-            isPaused = !isPaused;
-        });
-
-        function adjustVideoSize() {
-            const width = Math.min(window.innerWidth * 0.9, video.videoWidth);
-            const height = width * 0.75;
-            videoContainer.style.width = `${width}px`;
-            videoContainer.style.height = `${height}px`;
-            canvas.width = width;
-            canvas.height = height;
-        }
 
         async function main() {
-            await setupCamera();
             await setupFaceAPI();
             await loadRecognitionModel();
-            video.addEventListener('play', () => {
-                adjustVideoSize();
-                requestAnimationFrame(detectFaces);
-            });
         }
 
         main();
