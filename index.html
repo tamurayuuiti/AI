@@ -6,6 +6,15 @@
     <title>リアルタイム顔認識システム</title>
     <!-- TensorFlow.jsをCDN経由で読み込み -->
     <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+    <script>
+        // TensorFlow.jsの読み込みエラー時の処理
+        window.onerror = function (message, source, lineno, colno, error) {
+            if (source.includes('tf.min.js')) {
+                console.error("TensorFlow.jsの読み込みに失敗しました:", error);
+                alert("TensorFlow.jsの読み込みに失敗しました。インターネット接続を確認してください。");
+            }
+        };
+    </script>
     <!-- face-api.jsのローカルファイルを読み込み -->
     <script defer src="libs/face-api.min.js"></script>
     <style>
@@ -130,6 +139,7 @@
         let isPaused = false;
         let isFrameVisible = false;
         let detectionAttemptCount = 0;  // 検出試行回数のカウンタ
+        let lastDetectedDescriptors = [];  // 前回の検出結果を記憶
 
         async function setupCamera() {
             try {
@@ -213,16 +223,31 @@
 
                 if (detections.length > 0) {
                     console.log("顔検出成功:", detections.length, "個の顔が検出されました。");
+
+                    detections.forEach((detection, index) => {
+                        const { x, y, width, height } = detection.detection.box;
+                        const descriptor = detection.descriptor;
+                        const isSameFace = lastDetectedDescriptors.some(lastDescriptor =>
+                            faceapi.euclideanDistance(lastDescriptor, descriptor) < 0.6
+                        );
+
+                        if (!isSameFace) {
+                            console.log(`顔${index + 1}の詳細情報:`);
+                            console.log(`- 位置: x=${x}, y=${y}, width=${width}, height=${height}`);
+                            console.log(`- 表情:`, detection.expressions);
+                            console.log(`- 年齢: ${detection.age.toFixed(1)}`);
+                            console.log(`- 性別: ${detection.gender}`);
+                        }
+
+                        lastDetectedDescriptors[index] = descriptor;
+
+                        ctx.strokeStyle = "lime";
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(x, y, width, height);
+                    });
                 } else {
                     console.log("顔は検出されませんでしたが、顔検出処理は実行されました。");
                 }
-
-                detections.forEach(detection => {
-                    const { x, y, width, height } = detection.detection.box;
-                    ctx.strokeStyle = "lime";
-                    ctx.lineWidth = 3;
-                    ctx.strokeRect(x, y, width, height);
-                });
 
             } catch (error) {
                 console.error("顔検出中にエラーが発生しました:", error);
