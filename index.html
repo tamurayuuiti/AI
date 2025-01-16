@@ -7,28 +7,88 @@
   <style>
     body {
       margin: 0;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
       background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
     }
+
     canvas {
       display: block;
+      margin: 0;
+    }
+
+    header {
+      width: 100%;
+      padding: 10px;
+      background-color: #202020;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      color: limegreen;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: limegreen;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #aaffaa;
+    }
+
+    footer {
+      width: 100%;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      background-color: #202020;
+      color: white;
+      box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.5);
     }
   </style>
 </head>
 <body>
+  <header>
+    <h1>リアルタイム波形グラフ</h1>
+    <button id="toggleButton">一時停止</button>
+  </header>
   <canvas id="waveform"></canvas>
+  <footer>
+    &copy; 2025 リアルタイム波形グラフ | デザインと機能の最適化
+  </footer>
+
   <script>
     const canvas = document.getElementById('waveform');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const toggleButton = document.getElementById('toggleButton');
 
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
+    let canvasWidth = window.innerWidth;
+    let canvasHeight = window.innerHeight - 70; // ヘッダーとフッターの高さを差し引く
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
 
     const waveColor = 'limegreen';
     const gridColor = 'gray';
     const memoryTextColor = 'white';
+
+    let isPaused = false; // 描画の一時停止フラグ
 
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(stream => {
@@ -38,37 +98,25 @@
         const source = audioContext.createMediaStreamSource(stream);
         source.connect(analyser);
 
-        // 波形の詳細度を調整
-        analyser.fftSize = 1024; // 高速フーリエ変換のサイズ
+        analyser.fftSize = 2048;
         const bufferLength = analyser.fftSize;
         const dataArray = new Uint8Array(bufferLength);
 
-        // スケール調整用の定数
-        const amplitudeMax = 10000;
+        let amplitudeMax = 1;
+
+        function calculateAmplitudeRange() {
+          const values = dataArray.map(value => (value / 128.0 - 1.0));
+          const min = Math.min(...values);
+          const max = Math.max(...values);
+          amplitudeMax = Math.max(Math.abs(min), Math.abs(max)) * 1.1;
+        }
 
         function drawGrid() {
-          const timeDivisions = 10; // 横軸の時間分割数
-          const amplitudeDivisions = 10; // 縦軸の振幅分割数
+          const amplitudeDivisions = 10;
 
           ctx.strokeStyle = gridColor;
           ctx.lineWidth = 0.5;
 
-          // 横軸の時間メモリ
-          for (let i = 0; i <= timeDivisions; i++) {
-            const x = (canvasWidth / timeDivisions) * i;
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvasHeight);
-            ctx.stroke();
-
-            // メモリ値描画
-            ctx.fillStyle = memoryTextColor;
-            ctx.font = '12px Arial';
-            const timeLabel = `${(i * analyser.fftSize / audioContext.sampleRate).toFixed(2)}s`;
-            ctx.fillText(timeLabel, x + 2, canvasHeight - 10);
-          }
-
-          // 縦軸の振幅メモリ
           for (let i = 0; i <= amplitudeDivisions; i++) {
             const y = (canvasHeight / amplitudeDivisions) * i;
             ctx.beginPath();
@@ -76,27 +124,23 @@
             ctx.lineTo(canvasWidth, y);
             ctx.stroke();
 
-            // メモリ値描画
             ctx.fillStyle = memoryTextColor;
             ctx.font = '12px Arial';
 
-            // -10000～10000の範囲を分割
             const amplitudeValue = ((amplitudeDivisions - i) / amplitudeDivisions) * 2 * amplitudeMax - amplitudeMax;
-            ctx.fillText(`${Math.round(amplitudeValue)}`, 5, y - 2);
+            ctx.fillText(`${amplitudeValue.toFixed(1)}`, 5, y - 2);
           }
         }
 
         function drawWave() {
           analyser.getByteTimeDomainData(dataArray);
+          calculateAmplitudeRange();
 
-          // キャンバスをクリア
           ctx.fillStyle = 'black';
           ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-          // グリッドを描画
           drawGrid();
 
-          // 波形を描画
           ctx.lineWidth = 2;
           ctx.strokeStyle = waveColor;
           ctx.beginPath();
@@ -105,7 +149,6 @@
           let x = 0;
 
           for (let i = 0; i < bufferLength; i++) {
-            // データを-10000～10000にスケーリング
             const v = (dataArray[i] / 128.0 - 1.0) * amplitudeMax;
             const y = canvasHeight / 2 - (v / amplitudeMax) * (canvasHeight / 2);
 
@@ -120,11 +163,23 @@
 
           ctx.stroke();
 
-          // 次フレームの描画をリクエスト
-          requestAnimationFrame(drawWave);
+          if (!isPaused) {
+            requestAnimationFrame(drawWave);
+          }
         }
 
         drawWave();
+
+        toggleButton.addEventListener('click', () => {
+          isPaused = !isPaused;
+
+          if (!isPaused) {
+            drawWave();
+            toggleButton.textContent = '一時停止';
+          } else {
+            toggleButton.textContent = '再開';
+          }
+        });
       })
       .catch(error => {
         console.error('マイクの取得に失敗しました:', error);
@@ -132,8 +187,10 @@
 
     // ウィンドウサイズ変更時にキャンバスサイズを更新
     window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvasWidth = window.innerWidth;
+      canvasHeight = window.innerHeight - 70; // ヘッダーとフッターの高さを差し引く
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
     });
   </script>
 </body>
