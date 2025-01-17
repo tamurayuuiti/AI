@@ -22,6 +22,9 @@
             text-align: center;
             z-index: 2;
             padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         h1 {
@@ -33,39 +36,45 @@
             display: flex;
             justify-content: center;
             gap: 1rem;
-            margin-bottom: 2rem;
             flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            width: 100%;
         }
 
         .time-box {
             background: linear-gradient(135deg, #536DFE, #69F0AE);
             border-radius: 50%;
             text-align: center;
-            width: calc(10vw + 60px); /* 動的なサイズ */
-            height: calc(10vw + 60px);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* サイズと文字サイズを動的に調整 */
+        .time-box {
+            width: calc(10vw + 60px);
+            height: calc(10vw + 60px);
         }
 
         .time {
-            font-size: calc(1.5rem + 1vw); /* 動的なフォントサイズ */
+            font-size: calc(1.5rem + 1vw);
             font-weight: bold;
             color: #fff;
             line-height: 1;
         }
 
         .label {
-            font-size: calc(0.8rem + 0.3vw); /* 動的なフォントサイズ */
+            font-size: calc(0.8rem + 0.3vw);
             text-transform: uppercase;
             margin-top: 0.5rem;
             color: rgba(255, 255, 255, 0.8);
         }
 
         .target-time {
-            font-size: calc(1.2rem + 0.5vw); /* 動的なフォントサイズ */
+            font-size: calc(1.2rem + 0.5vw);
             font-weight: bold;
             margin-top: 1rem;
         }
@@ -76,7 +85,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: calc(2rem + 2vw); /* 動的なフォントサイズ */
+            font-size: calc(2rem + 2vw);
             font-weight: bold;
             text-align: center;
             color: #ffd740;
@@ -125,7 +134,7 @@
             color: white;
             border: none;
             padding: 10px 20px;
-            font-size: calc(0.8rem + 0.3vw); /* 動的なフォントサイズ */
+            font-size: calc(0.8rem + 0.3vw);
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
@@ -135,9 +144,19 @@
             background: #ff79a9;
         }
 
+        /* 一列配置のスタイル */
+        @media (min-width: 769px) {
+            .countdown {
+                flex-wrap: nowrap;
+            }
+        }
+
+        /* 二列配置のスタイル */
         @media (max-width: 768px) {
             .countdown {
-                gap: 0.5rem;
+                flex-wrap: wrap;
+                justify-content: space-around;
+                gap: 1rem;
             }
 
             .time-box {
@@ -146,6 +165,7 @@
             }
         }
 
+        /* スマホ用スタイル */
         @media (max-width: 480px) {
             h1 {
                 font-size: 2rem;
