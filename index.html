@@ -22,38 +22,27 @@
             text-align: center;
             z-index: 2;
             padding: 1rem;
-            width: 100%;
         }
 
         h1 {
-            font-size: calc(2rem + 1vw);
+            font-size: calc(2rem + 1vw); /* 動的なフォントサイズ */
             margin-bottom: 1.5rem;
         }
 
         .countdown {
-            display: grid;
+            display: flex;
             justify-content: center;
-            align-items: center;
             gap: 1rem;
             margin-bottom: 2rem;
-            width: 100%;
-        }
-
-        /* 横並び5つのレイアウト */
-        .countdown.horizontal {
-            grid-template-columns: repeat(5, 1fr);
-        }
-
-        /* 上3つ、下2つのレイアウト */
-        .countdown.vertical {
-            grid-template-columns: repeat(3, 1fr);
-            grid-auto-rows: auto;
+            flex-wrap: wrap;
         }
 
         .time-box {
             background: linear-gradient(135deg, #536DFE, #69F0AE);
             border-radius: 50%;
             text-align: center;
+            width: calc(10vw + 60px); /* 動的なサイズ */
+            height: calc(10vw + 60px);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -61,28 +50,22 @@
             box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
         }
 
-        /* カウンターのサイズ */
-        .time-box {
-            width: calc(12vw + 40px);
-            height: calc(12vw + 40px);
-        }
-
         .time {
-            font-size: calc(3rem + 1vw); /* カウンター内の文字サイズをさらに大きく */
+            font-size: calc(1.5rem + 1vw); /* 動的なフォントサイズ */
             font-weight: bold;
             color: #fff;
             line-height: 1;
         }
 
         .label {
-            font-size: calc(1rem + 0.5vw); /* カウンターの大きさに応じたラベルサイズ */
+            font-size: calc(0.8rem + 0.3vw); /* 動的なフォントサイズ */
             text-transform: uppercase;
             margin-top: 0.5rem;
             color: rgba(255, 255, 255, 0.8);
         }
 
         .target-time {
-            font-size: calc(1.2rem + 0.5vw);
+            font-size: calc(1.2rem + 0.5vw); /* 動的なフォントサイズ */
             font-weight: bold;
             margin-top: 1rem;
         }
@@ -93,7 +76,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: calc(2rem + 2vw);
+            font-size: calc(2rem + 2vw); /* 動的なフォントサイズ */
             font-weight: bold;
             text-align: center;
             color: #ffd740;
@@ -142,7 +125,7 @@
             color: white;
             border: none;
             padding: 10px 20px;
-            font-size: calc(0.8rem + 0.3vw);
+            font-size: calc(0.8rem + 0.3vw); /* 動的なフォントサイズ */
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
@@ -151,12 +134,59 @@
         .test-button:hover {
             background: #ff79a9;
         }
+
+        @media (max-width: 768px) {
+            .countdown {
+                gap: 0.5rem;
+            }
+
+            .time-box {
+                width: calc(12vw + 50px);
+                height: calc(12vw + 50px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .time-box {
+                width: calc(15vw + 40px);
+                height: calc(15vw + 40px);
+            }
+
+            .test-button {
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 id="year-title"></h1>
-        <div class="countdown" id="countdown"></div>
+        <div class="countdown">
+            <div class="time-box">
+                <span id="days" class="time">0</span>
+                <span class="label">日</span>
+            </div>
+            <div class="time-box">
+                <span id="hours" class="time">00</span>
+                <span class="label">時間</span>
+            </div>
+            <div class="time-box">
+                <span id="minutes" class="time">00</span>
+                <span class="label">分</span>
+            </div>
+            <div class="time-box">
+                <span id="seconds" class="time">00</span>
+                <span class="label">秒</span>
+            </div>
+            <div class="time-box">
+                <span id="milliseconds" class="time">000</span>
+                <span class="label">ミリ秒</span>
+            </div>
+        </div>
         <div class="target-time" id="target-time"></div>
     </div>
     <div class="dark-overlay" id="dark-overlay"></div>
@@ -164,36 +194,10 @@
     <canvas class="fireworks" id="fireworks"></canvas>
     <button class="test-button" onclick="showNewYearCelebration()">アニメーションテスト</button>
     <script>
-        const countdown = document.getElementById('countdown');
         const fireworksCanvas = document.getElementById('fireworks');
         const ctx = fireworksCanvas.getContext('2d');
         fireworksCanvas.width = window.innerWidth;
         fireworksCanvas.height = window.innerHeight;
-
-        function adjustLayout() {
-            const width = window.innerWidth;
-            const layoutClass = width < 768 ? 'vertical' : 'horizontal'; // 横並びまたは上下2列に制限
-            countdown.className = `countdown ${layoutClass}`;
-        }
-
-        window.addEventListener('resize', () => {
-            adjustLayout();
-        });
-
-        function initializeCountdown() {
-            ['日', '時間', '分', '秒', 'ミリ秒'].forEach(label => {
-                const timeBox = document.createElement('div');
-                timeBox.className = 'time-box';
-                timeBox.innerHTML = `
-                    <span class="time">0</span>
-                    <span class="label">${label}</span>
-                `;
-                countdown.appendChild(timeBox);
-            });
-        }
-
-        initializeCountdown();
-        adjustLayout();
 
         function resizeCanvas() {
             fireworksCanvas.width = window.innerWidth;
