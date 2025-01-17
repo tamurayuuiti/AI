@@ -11,6 +11,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             height: 100vh;
             background: linear-gradient(135deg, #4facfe, #00f2fe);
             color: #fff;
@@ -27,15 +28,11 @@
             margin-bottom: 1.5rem;
         }
 
-        .target-time {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
         .countdown {
             display: flex;
             justify-content: center;
             gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .time-box {
@@ -64,6 +61,12 @@
             text-transform: uppercase;
             margin-top: 0.5rem;
             color: rgba(255, 255, 255, 0.8);
+        }
+
+        .target-time {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: 1rem;
         }
 
         .new-year-message {
@@ -135,7 +138,6 @@
 <body>
     <div class="container">
         <h1 id="year-title"></h1>
-        <div class="target-time" id="target-time"></div>
         <div class="countdown">
             <div class="time-box">
                 <span id="days" class="time">0</span>
@@ -158,6 +160,7 @@
                 <span class="label">ミリ秒</span>
             </div>
         </div>
+        <div class="target-time" id="target-time"></div>
     </div>
     <div class="dark-overlay" id="dark-overlay"></div>
     <div class="new-year-message" id="new-year-message">🎉 試験開始 🎉</div>
@@ -190,12 +193,11 @@
             }
 
             testDate.setHours(9, 30, 0, 0);
-
             return testDate;
         }
 
         function getReiwaYear(year) {
-            return year - 2018; // 平成31年は2019年
+            return year - 2018;
         }
 
         function updateCountdown() {
@@ -221,8 +223,11 @@
             document.getElementById('milliseconds').textContent = String(milliseconds).padStart(3, '0');
 
             const reiwaYear = getReiwaYear(testDate.getFullYear());
-            document.getElementById('year-title').textContent = `令和${reiwaYear}年度大学入学共通テストまであと`;
-            document.getElementById('target-time').textContent = `試験日時: ${testDate.toLocaleString('ja-JP', { dateStyle: 'long', timeStyle: 'short' })}`;
+            const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+            const testWeekday = weekdays[testDate.getDay()];
+
+            document.getElementById('year-title').textContent = `令和${reiwaYear}年度大学入学共通テストまで残り`;
+            document.getElementById('target-time').textContent = `試験日時: ${testDate.getFullYear()}年${testDate.getMonth() + 1}月${testDate.getDate()}日（${testWeekday}） 9時30分`;
         }
 
         function createFirework() {
