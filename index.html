@@ -25,7 +25,7 @@
         }
 
         h1 {
-            font-size: calc(2rem + 1vw); /* 動的なフォントサイズ */
+            font-size: calc(2rem + 1vw);
             margin-bottom: 1.5rem;
         }
 
@@ -41,7 +41,7 @@
             background: linear-gradient(135deg, #536DFE, #69F0AE);
             border-radius: 50%;
             text-align: center;
-            width: calc(10vw + 60px); /* 動的なサイズ */
+            width: calc(10vw + 60px);
             height: calc(10vw + 60px);
             display: flex;
             flex-direction: column;
@@ -51,21 +51,21 @@
         }
 
         .time {
-            font-size: calc(1.5rem + 1vw); /* 動的なフォントサイズ */
+            font-size: calc(1.5rem + 1vw);
             font-weight: bold;
             color: #fff;
             line-height: 1;
         }
 
         .label {
-            font-size: calc(0.8rem + 0.3vw); /* 動的なフォントサイズ */
+            font-size: calc(0.8rem + 0.3vw);
             text-transform: uppercase;
             margin-top: 0.5rem;
             color: rgba(255, 255, 255, 0.8);
         }
 
         .target-time {
-            font-size: calc(1.2rem + 0.5vw); /* 動的なフォントサイズ */
+            font-size: calc(1.2rem + 0.5vw);
             font-weight: bold;
             margin-top: 1rem;
         }
@@ -76,7 +76,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: calc(2rem + 2vw); /* 動的なフォントサイズ */
+            font-size: calc(2rem + 2vw);
             font-weight: bold;
             text-align: center;
             color: #ffd740;
@@ -125,7 +125,7 @@
             color: white;
             border: none;
             padding: 10px 20px;
-            font-size: calc(0.8rem + 0.3vw); /* 動的なフォントサイズ */
+            font-size: calc(0.8rem + 0.3vw);
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
@@ -199,15 +199,15 @@
         fireworksCanvas.width = window.innerWidth;
         fireworksCanvas.height = window.innerHeight;
 
+        const particles = [];
+        const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE'];
+
         function resizeCanvas() {
             fireworksCanvas.width = window.innerWidth;
             fireworksCanvas.height = window.innerHeight;
         }
 
         window.addEventListener('resize', resizeCanvas);
-
-        const particles = [];
-        const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE'];
 
         function calculateTestDate() {
             const now = new Date();
