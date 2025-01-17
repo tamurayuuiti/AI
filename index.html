@@ -32,9 +32,9 @@
         .countdown {
             display: flex;
             justify-content: center;
-            flex-wrap: wrap;
             gap: 1rem;
             margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
 
         .time-box {
@@ -68,7 +68,6 @@
             font-size: calc(1.2rem + 0.5vw);
             font-weight: bold;
             margin-top: 1rem;
-            word-wrap: break-word;
         }
 
         .new-year-message {
@@ -138,25 +137,12 @@
 
         @media (max-width: 768px) {
             .countdown {
-                flex-wrap: wrap;
                 gap: 0.5rem;
             }
 
             .time-box {
                 width: calc(12vw + 50px);
                 height: calc(12vw + 50px);
-            }
-
-            .countdown div:nth-child(1),
-            .countdown div:nth-child(2),
-            .countdown div:nth-child(3) {
-                order: 1;
-            }
-
-            .countdown div:nth-child(4),
-            .countdown div:nth-child(5) {
-                order: 2;
-                margin-top: 10px;
             }
         }
 
@@ -233,14 +219,16 @@
                 testDate.setDate(testDate.getDate() + 1);
             }
 
+            // 時刻を考慮する
+            testDate.setHours(9, 30, 0, 0);
             if (now > testDate) {
                 testDate = new Date(year + 1, 0, 13);
                 while (testDate.getDay() !== 6) {
                     testDate.setDate(testDate.getDate() + 1);
                 }
+                testDate.setHours(9, 30, 0, 0);
             }
 
-            testDate.setHours(9, 30, 0, 0);
             return testDate;
         }
 
