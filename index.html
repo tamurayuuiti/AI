@@ -24,6 +24,11 @@
 
         h1 {
             font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .target-time {
+            font-size: 1.5rem;
             margin-bottom: 2rem;
         }
 
@@ -130,6 +135,7 @@
 <body>
     <div class="container">
         <h1 id="year-title"></h1>
+        <div class="target-time" id="target-time"></div>
         <div class="countdown">
             <div class="time-box">
                 <span id="days" class="time">0</span>
@@ -154,7 +160,7 @@
         </div>
     </div>
     <div class="dark-overlay" id="dark-overlay"></div>
-    <div class="new-year-message" id="new-year-message">🎉 大学入学共通テスト 頑張ってください！ 🎉</div>
+    <div class="new-year-message" id="new-year-message">🎉 試験開始 🎉</div>
     <canvas class="fireworks" id="fireworks"></canvas>
     <button class="test-button" onclick="showNewYearCelebration()">アニメーションテスト</button>
     <script>
@@ -169,15 +175,13 @@
         function calculateTestDate() {
             const now = new Date();
             const year = now.getFullYear();
-            const january13 = new Date(year, 0, 13); // 1月13日
+            const january13 = new Date(year, 0, 13);
             let testDate = new Date(january13);
 
-            // 1月13日以降最初の土曜日
             while (testDate.getDay() !== 6) {
                 testDate.setDate(testDate.getDate() + 1);
             }
 
-            // 現在の日時が試験日を過ぎている場合は来年を計算
             if (now > testDate) {
                 testDate = new Date(year + 1, 0, 13);
                 while (testDate.getDay() !== 6) {
@@ -185,10 +189,13 @@
                 }
             }
 
-            // 試験時刻は午前9時30分
             testDate.setHours(9, 30, 0, 0);
 
             return testDate;
+        }
+
+        function getReiwaYear(year) {
+            return year - 2018; // 平成31年は2019年
         }
 
         function updateCountdown() {
@@ -213,7 +220,9 @@
             document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
             document.getElementById('milliseconds').textContent = String(milliseconds).padStart(3, '0');
 
-            document.getElementById('year-title').textContent = `大学入学共通テストまでのカウントダウン`;
+            const reiwaYear = getReiwaYear(testDate.getFullYear());
+            document.getElementById('year-title').textContent = `令和${reiwaYear}年度大学入学共通テストまであと`;
+            document.getElementById('target-time').textContent = `試験日時: ${testDate.toLocaleString('ja-JP', { dateStyle: 'long', timeStyle: 'short' })}`;
         }
 
         function createFirework() {
