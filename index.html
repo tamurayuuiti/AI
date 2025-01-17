@@ -1,197 +1,272 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>リアルタイム波形グラフ</title>
-  <style>
-    body {
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      background-color: black;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>年明けカウントダウン</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: #fff;
+            overflow: hidden;
+        }
 
-    canvas {
-      display: block;
-      margin: 0;
-    }
+        .container {
+            text-align: center;
+            z-index: 2;
+        }
 
-    header {
-      width: 100%;
-      padding: 10px;
-      background-color: #202020;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
-    }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+        }
 
-    h1 {
-      margin: 0;
-      font-size: 20px;
-      color: limegreen;
-    }
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
 
-    button {
-      padding: 10px 20px;
-      background-color: limegreen;
-      color: black;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+        .time-box {
+            background: linear-gradient(135deg, #536DFE, #69F0AE);
+            border-radius: 50%;
+            padding: 1.5rem;
+            text-align: center;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+        }
 
-    button:hover {
-      background-color: #aaffaa;
-    }
+        .time {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #fff;
+            line-height: 1;
+        }
 
-    footer {
-      width: 100%;
-      padding: 10px;
-      text-align: center;
-      font-size: 14px;
-      background-color: #202020;
-      color: white;
-      box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.5);
-    }
-  </style>
+        .label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .new-year-message {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            font-weight: bold;
+            text-align: center;
+            color: #ffd740;
+            text-shadow: 0 0 30px #ff4081, 0 0 50px #ff4081;
+            animation: glow 1.5s infinite;
+            z-index: 4;
+            white-space: nowrap;
+        }
+
+        .dark-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 3;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                text-shadow: 0 0 20px #ff4081, 0 0 40px #ff4081;
+            }
+            50% {
+                text-shadow: 0 0 40px #ffd740, 0 0 60px #ff4081;
+            }
+        }
+
+        .fireworks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        .test-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff4081;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .test-button:hover {
+            background: #ff79a9;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>リアルタイム波形グラフ</h1>
-    <button id="toggleButton">一時停止</button>
-  </header>
-  <canvas id="waveform"></canvas>
-  <footer>
-    &copy; 2025 リアルタイム波形グラフ | デザインと機能の最適化
-  </footer>
+    <div class="container">
+        <h1 id="year-title"></h1>
+        <div class="countdown">
+            <div class="time-box">
+                <span id="days" class="time">0</span>
+                <span class="label">日</span>
+            </div>
+            <div class="time-box">
+                <span id="hours" class="time">00</span>
+                <span class="label">時間</span>
+            </div>
+            <div class="time-box">
+                <span id="minutes" class="time">00</span>
+                <span class="label">分</span>
+            </div>
+            <div class="time-box">
+                <span id="seconds" class="time">00</span>
+                <span class="label">秒</span>
+            </div>
+            <div class="time-box">
+                <span id="milliseconds" class="time">000</span>
+                <span class="label">ミリ秒</span>
+            </div>
+        </div>
+    </div>
+    <div class="dark-overlay" id="dark-overlay"></div>
+    <div class="new-year-message" id="new-year-message">🎉 Happy New Year! 🎉</div>
+    <canvas class="fireworks" id="fireworks"></canvas>
+    <button class="test-button" onclick="showNewYearCelebration()">アニメーションテスト</button>
+    <script>
+        const fireworksCanvas = document.getElementById('fireworks');
+        const ctx = fireworksCanvas.getContext('2d');
+        fireworksCanvas.width = window.innerWidth;
+        fireworksCanvas.height = window.innerHeight;
 
-  <script>
-    const canvas = document.getElementById('waveform');
-    const ctx = canvas.getContext('2d');
-    const toggleButton = document.getElementById('toggleButton');
+        const particles = [];
+        const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE'];
 
-    let canvasWidth = window.innerWidth;
-    let canvasHeight = window.innerHeight - 70; // ヘッダーとフッターの高さを差し引く
+        function createFirework() {
+            const x = Math.random() * fireworksCanvas.width;
+            const y = Math.random() * fireworksCanvas.height / 2;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const particleCount = 1200;
+            const lineCount = 50;
 
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
+            for (let j = 0; j < lineCount; j++) {
+                const angleOffset = (Math.PI * 2) * (j / lineCount);
 
-    const waveColor = 'limegreen';
-    const gridColor = 'gray';
-    const memoryTextColor = 'white';
+                for (let i = 0; i < particleCount / lineCount; i++) {
+                    const progress = i / (particleCount / lineCount);
+                    const distance = 3 + progress * 120;
+                    const lineAngle = angleOffset + (Math.random() - 0.03) * (Math.PI / 150);
+                    const speed = Math.random() * 2 + progress * 4;
+                    const size = Math.random() * 1.5 + 0.5;
 
-    let isPaused = false; // 描画の一時停止フラグ
-
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(stream => {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const analyser = audioContext.createAnalyser();
-
-        const source = audioContext.createMediaStreamSource(stream);
-        source.connect(analyser);
-
-        analyser.fftSize = 2048;
-        const bufferLength = analyser.fftSize;
-        const dataArray = new Uint8Array(bufferLength);
-
-        let amplitudeMax = 1;
-
-        function calculateAmplitudeRange() {
-          const values = dataArray.map(value => (value / 128.0 - 1.0));
-          const min = Math.min(...values);
-          const max = Math.max(...values);
-          amplitudeMax = Math.max(Math.abs(min), Math.abs(max)) * 1.1;
+                    particles.push({
+                        x: x + Math.cos(lineAngle) * distance,
+                        y: y + Math.sin(lineAngle) * distance,
+                        size,
+                        color,
+                        opacity: 1,
+                        dx: Math.cos(lineAngle) * speed,
+                        dy: Math.sin(lineAngle) * speed,
+                        gravity: 0.1,
+                        decay: Math.random() * 0.02 + 0.01,
+                        flickerSpeed: Math.random() * 0.2 + 0.05, // 明滅速度
+                        drag: 0.98,
+                    });
+                }
+            }
         }
 
-        function drawGrid() {
-          const amplitudeDivisions = 10;
+        function drawFireworks() {
+            ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
 
-          ctx.strokeStyle = gridColor;
-          ctx.lineWidth = 0.5;
+            particles.forEach((particle, index) => {
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                const flicker = Math.abs(Math.sin(Date.now() * particle.flickerSpeed)); // 明滅効果
+                ctx.fillStyle = `rgba(${hexToRgb(particle.color)},${particle.opacity * flicker})`;
+                ctx.fill();
 
-          for (let i = 0; i <= amplitudeDivisions; i++) {
-            const y = (canvasHeight / amplitudeDivisions) * i;
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvasWidth, y);
-            ctx.stroke();
+                particle.x += particle.dx;
+                particle.y += particle.dy;
+                particle.dy += particle.gravity;
+                particle.dx *= particle.drag;
+                particle.dy *= particle.drag;
+                particle.opacity -= particle.decay;
 
-            ctx.fillStyle = memoryTextColor;
-            ctx.font = '12px Arial';
-
-            const amplitudeValue = ((amplitudeDivisions - i) / amplitudeDivisions) * 2 * amplitudeMax - amplitudeMax;
-            ctx.fillText(`${amplitudeValue.toFixed(1)}`, 5, y - 2);
-          }
+                if (particle.opacity <= 0) particles.splice(index, 1);
+            });
         }
 
-        function drawWave() {
-          analyser.getByteTimeDomainData(dataArray);
-          calculateAmplitudeRange();
+        function hexToRgb(hex) {
+            const bigint = parseInt(hex.slice(1), 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = bigint & 255;
+            return `${r},${g},${b}`;
+        }
 
-          ctx.fillStyle = 'black';
-          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        function updateCountdown() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const nextYear = new Date(currentYear + 1, 0, 1);
+            const timeDifference = nextYear - now;
 
-          drawGrid();
-
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = waveColor;
-          ctx.beginPath();
-
-          const sliceWidth = canvasWidth / bufferLength;
-          let x = 0;
-
-          for (let i = 0; i < bufferLength; i++) {
-            const v = (dataArray[i] / 128.0 - 1.0) * amplitudeMax;
-            const y = canvasHeight / 2 - (v / amplitudeMax) * (canvasHeight / 2);
-
-            if (i === 0) {
-              ctx.moveTo(x, y);
-            } else {
-              ctx.lineTo(x, y);
+            if (timeDifference <= 0) {
+                showNewYearCelebration();
+                return;
             }
 
-            x += sliceWidth;
-          }
+            const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+            const milliseconds = Math.floor(timeDifference % 1000);
 
-          ctx.stroke();
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            document.getElementById('milliseconds').textContent = String(milliseconds).padStart(3, '0');
 
-          if (!isPaused) {
-            requestAnimationFrame(drawWave);
-          }
+            document.getElementById('year-title').textContent = `${currentYear + 1}年の年明けまでのカウントダウン`;
         }
 
-        drawWave();
+        function showNewYearCelebration() {
+            document.getElementById('dark-overlay').style.display = 'block';
+            document.getElementById('new-year-message').style.display = 'block';
+            setInterval(createFirework, 1000); // 出現間隔を1000msに設定
+        }
 
-        toggleButton.addEventListener('click', () => {
-          isPaused = !isPaused;
+        setInterval(() => {
+            drawFireworks();
+        }, 33);
 
-          if (!isPaused) {
-            drawWave();
-            toggleButton.textContent = '一時停止';
-          } else {
-            toggleButton.textContent = '再開';
-          }
-        });
-      })
-      .catch(error => {
-        console.error('マイクの取得に失敗しました:', error);
-      });
-
-    // ウィンドウサイズ変更時にキャンバスサイズを更新
-    window.addEventListener('resize', () => {
-      canvasWidth = window.innerWidth;
-      canvasHeight = window.innerHeight - 70; // ヘッダーとフッターの高さを差し引く
-      canvas.width = canvasWidth;
-      canvas.height = canvasHeight;
-    });
-  </script>
+        setInterval(updateCountdown, 1);
+        updateCountdown();
+    </script>
 </body>
 </html>
