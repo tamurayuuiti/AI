@@ -25,7 +25,7 @@
         }
 
         h1 {
-            font-size: calc(2rem + 1vw);
+            font-size: calc(2.5rem + 1vw); /* フォントサイズを少し拡大 */
             margin-bottom: 1.5rem;
         }
 
@@ -41,8 +41,8 @@
             background: linear-gradient(135deg, #536DFE, #69F0AE);
             border-radius: 50%;
             text-align: center;
-            width: calc(10vw + 60px);
-            height: calc(10vw + 60px);
+            width: calc(12vw + 50px); /* スマホ対応で余裕を持ったサイズ */
+            height: calc(12vw + 50px);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -51,21 +51,21 @@
         }
 
         .time {
-            font-size: calc(1.5rem + 1vw);
+            font-size: calc(2rem + 1vw); /* 数字を大きくして視認性向上 */
             font-weight: bold;
             color: #fff;
             line-height: 1;
         }
 
         .label {
-            font-size: calc(0.8rem + 0.3vw);
+            font-size: calc(1rem + 0.5vw); /* ラベルのフォントサイズを調整 */
             text-transform: uppercase;
             margin-top: 0.5rem;
             color: rgba(255, 255, 255, 0.8);
         }
 
         .target-time {
-            font-size: calc(1.2rem + 0.5vw);
+            font-size: calc(1.5rem + 0.5vw); /* フォントサイズを拡大 */
             font-weight: bold;
             margin-top: 1rem;
         }
@@ -76,7 +76,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: calc(2rem + 2vw);
+            font-size: calc(2.5rem + 1.5vw); /* サイズを調整 */
             font-weight: bold;
             text-align: center;
             color: #ffd740;
@@ -124,9 +124,9 @@
             background: #ff4081;
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: calc(0.8rem + 0.3vw);
-            border-radius: 5px;
+            padding: 15px 30px; /* ボタンサイズを拡大 */
+            font-size: calc(1rem + 0.5vw); /* フォントサイズを調整 */
+            border-radius: 10px; /* ボタンを丸みのあるデザインに */
             cursor: pointer;
             transition: background 0.3s;
         }
@@ -136,13 +136,22 @@
         }
 
         @media (max-width: 768px) {
+            h1 {
+                font-size: calc(2rem + 1vw); /* スマホ用に調整 */
+            }
+
             .countdown {
-                gap: 0.5rem;
+                gap: 0.8rem;
             }
 
             .time-box {
-                width: calc(12vw + 50px);
-                height: calc(12vw + 50px);
+                width: calc(14vw + 40px); /* サイズを調整 */
+                height: calc(14vw + 40px);
+            }
+
+            .test-button {
+                padding: 12px 25px; /* ボタンのパディングを縮小 */
+                font-size: calc(0.9rem + 0.3vw);
             }
         }
 
@@ -152,12 +161,17 @@
             }
 
             .time-box {
-                width: calc(15vw + 40px);
-                height: calc(15vw + 40px);
+                width: calc(16vw + 30px); /* スマホ用にさらに縮小 */
+                height: calc(16vw + 30px);
             }
 
             .test-button {
-                font-size: 0.8rem;
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .label {
+                font-size: 0.9rem; /* ラベルのフォントサイズを調整 */
             }
         }
     </style>
@@ -219,7 +233,6 @@
                 testDate.setDate(testDate.getDate() + 1);
             }
 
-            // 時刻を考慮する
             testDate.setHours(9, 30, 0, 0);
             if (now > testDate) {
                 testDate = new Date(year + 1, 0, 13);
