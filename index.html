@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>年明けカウントダウン</title>
+    <title>大学入学共通テストカウントダウン</title>
     <style>
         body {
             margin: 0;
@@ -154,7 +154,7 @@
         </div>
     </div>
     <div class="dark-overlay" id="dark-overlay"></div>
-    <div class="new-year-message" id="new-year-message">🎉 Happy New Year! 🎉</div>
+    <div class="new-year-message" id="new-year-message">🎉 大学入学共通テスト 頑張ってください！ 🎉</div>
     <canvas class="fireworks" id="fireworks"></canvas>
     <button class="test-button" onclick="showNewYearCelebration()">アニメーションテスト</button>
     <script>
@@ -165,6 +165,56 @@
 
         const particles = [];
         const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE'];
+
+        function calculateTestDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const january13 = new Date(year, 0, 13); // 1月13日
+            let testDate = new Date(january13);
+
+            // 1月13日以降最初の土曜日
+            while (testDate.getDay() !== 6) {
+                testDate.setDate(testDate.getDate() + 1);
+            }
+
+            // 現在の日時が試験日を過ぎている場合は来年を計算
+            if (now > testDate) {
+                testDate = new Date(year + 1, 0, 13);
+                while (testDate.getDay() !== 6) {
+                    testDate.setDate(testDate.getDate() + 1);
+                }
+            }
+
+            // 試験時刻は午前9時30分
+            testDate.setHours(9, 30, 0, 0);
+
+            return testDate;
+        }
+
+        function updateCountdown() {
+            const now = new Date();
+            const testDate = calculateTestDate();
+            const timeDifference = testDate - now;
+
+            if (timeDifference <= 0) {
+                showNewYearCelebration();
+                return;
+            }
+
+            const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+            const milliseconds = Math.floor(timeDifference % 1000);
+
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            document.getElementById('milliseconds').textContent = String(milliseconds).padStart(3, '0');
+
+            document.getElementById('year-title').textContent = `大学入学共通テストまでのカウントダウン`;
+        }
 
         function createFirework() {
             const x = Math.random() * fireworksCanvas.width;
@@ -193,7 +243,7 @@
                         dy: Math.sin(lineAngle) * speed,
                         gravity: 0.1,
                         decay: Math.random() * 0.02 + 0.01,
-                        flickerSpeed: Math.random() * 0.2 + 0.05, // 明滅速度
+                        flickerSpeed: Math.random() * 0.2 + 0.05,
                         drag: 0.98,
                     });
                 }
@@ -206,7 +256,7 @@
             particles.forEach((particle, index) => {
                 ctx.beginPath();
                 ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-                const flicker = Math.abs(Math.sin(Date.now() * particle.flickerSpeed)); // 明滅効果
+                const flicker = Math.abs(Math.sin(Date.now() * particle.flickerSpeed));
                 ctx.fillStyle = `rgba(${hexToRgb(particle.color)},${particle.opacity * flicker})`;
                 ctx.fill();
 
@@ -229,36 +279,10 @@
             return `${r},${g},${b}`;
         }
 
-        function updateCountdown() {
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            const nextYear = new Date(currentYear + 1, 0, 1);
-            const timeDifference = nextYear - now;
-
-            if (timeDifference <= 0) {
-                showNewYearCelebration();
-                return;
-            }
-
-            const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-            const milliseconds = Math.floor(timeDifference % 1000);
-
-            document.getElementById('days').textContent = days;
-            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-            document.getElementById('milliseconds').textContent = String(milliseconds).padStart(3, '0');
-
-            document.getElementById('year-title').textContent = `${currentYear + 1}年の年明けまでのカウントダウン`;
-        }
-
         function showNewYearCelebration() {
             document.getElementById('dark-overlay').style.display = 'block';
             document.getElementById('new-year-message').style.display = 'block';
-            setInterval(createFirework, 1000); // 出現間隔を1000msに設定
+            setInterval(createFirework, 1000);
         }
 
         setInterval(() => {
