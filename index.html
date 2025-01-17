@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>大学入学共通テストカウントダウン</title>
     <style>
-        /* 共通スタイル */
         body {
             margin: 0;
             font-family: 'Arial', sans-serif;
@@ -26,23 +25,23 @@
         }
 
         h1 {
-            font-size: calc(2rem + 1vw); /* 動的なフォントサイズ */
+            font-size: calc(2rem + 1vw);
             margin-bottom: 1.5rem;
         }
 
         .countdown {
             display: flex;
             justify-content: center;
+            flex-wrap: wrap;
             gap: 1rem;
             margin-bottom: 2rem;
-            flex-wrap: wrap;
         }
 
         .time-box {
             background: linear-gradient(135deg, #536DFE, #69F0AE);
             border-radius: 50%;
             text-align: center;
-            width: calc(10vw + 60px); /* 動的なサイズ */
+            width: calc(10vw + 60px);
             height: calc(10vw + 60px);
             display: flex;
             flex-direction: column;
@@ -52,23 +51,24 @@
         }
 
         .time {
-            font-size: calc(1.5rem + 1vw); /* 動的なフォントサイズ */
+            font-size: calc(1.5rem + 1vw);
             font-weight: bold;
             color: #fff;
             line-height: 1;
         }
 
         .label {
-            font-size: calc(0.8rem + 0.3vw); /* 動的なフォントサイズ */
+            font-size: calc(0.8rem + 0.3vw);
             text-transform: uppercase;
             margin-top: 0.5rem;
             color: rgba(255, 255, 255, 0.8);
         }
 
         .target-time {
-            font-size: calc(1.2rem + 0.5vw); /* 動的なフォントサイズ */
+            font-size: calc(1.2rem + 0.5vw);
             font-weight: bold;
             margin-top: 1rem;
+            word-wrap: break-word;
         }
 
         .new-year-message {
@@ -77,7 +77,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: calc(2rem + 2vw); /* 動的なフォントサイズ */
+            font-size: calc(2rem + 2vw);
             font-weight: bold;
             text-align: center;
             color: #ffd740;
@@ -126,7 +126,7 @@
             color: white;
             border: none;
             padding: 10px 20px;
-            font-size: calc(0.8rem + 0.3vw); /* 動的なフォントサイズ */
+            font-size: calc(0.8rem + 0.3vw);
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
@@ -136,21 +136,10 @@
             background: #ff79a9;
         }
 
-        /* PC用スタイル */
-        @media (min-width: 1024px) {
-            .container {
-                max-width: 800px;
-            }
-
+        @media (max-width: 768px) {
             .countdown {
-                gap: 2rem;
-            }
-        }
-
-        /* タブレット用スタイル */
-        @media (max-width: 1024px) {
-            h1 {
-                font-size: calc(1.8rem + 1vw);
+                flex-wrap: wrap;
+                gap: 0.5rem;
             }
 
             .time-box {
@@ -158,15 +147,22 @@
                 height: calc(12vw + 50px);
             }
 
-            .test-button {
-                font-size: calc(0.9rem + 0.3vw);
+            .countdown div:nth-child(1),
+            .countdown div:nth-child(2),
+            .countdown div:nth-child(3) {
+                order: 1;
+            }
+
+            .countdown div:nth-child(4),
+            .countdown div:nth-child(5) {
+                order: 2;
+                margin-top: 10px;
             }
         }
 
-        /* スマホ用スタイル */
-        @media (max-width: 768px) {
+        @media (max-width: 480px) {
             h1 {
-                font-size: 1.5rem;
+                font-size: 2rem;
             }
 
             .time-box {
@@ -174,13 +170,8 @@
                 height: calc(15vw + 40px);
             }
 
-            .countdown {
-                gap: 0.5rem;
-            }
-
             .test-button {
                 font-size: 0.8rem;
-                padding: 8px 16px;
             }
         }
     </style>
