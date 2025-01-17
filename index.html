@@ -21,27 +21,28 @@
         .container {
             text-align: center;
             z-index: 2;
+            padding: 1rem;
         }
 
         h1 {
-            font-size: 3rem;
+            font-size: calc(2rem + 1vw); /* 動的なフォントサイズ */
             margin-bottom: 1.5rem;
         }
 
         .countdown {
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
+            gap: 1rem;
             margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
 
         .time-box {
             background: linear-gradient(135deg, #536DFE, #69F0AE);
             border-radius: 50%;
-            padding: 1.5rem;
             text-align: center;
-            width: 120px;
-            height: 120px;
+            width: calc(10vw + 60px); /* 動的なサイズ */
+            height: calc(10vw + 60px);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -50,21 +51,21 @@
         }
 
         .time {
-            font-size: 3rem;
+            font-size: calc(1.5rem + 1vw); /* 動的なフォントサイズ */
             font-weight: bold;
             color: #fff;
             line-height: 1;
         }
 
         .label {
-            font-size: 1rem;
+            font-size: calc(0.8rem + 0.3vw); /* 動的なフォントサイズ */
             text-transform: uppercase;
             margin-top: 0.5rem;
             color: rgba(255, 255, 255, 0.8);
         }
 
         .target-time {
-            font-size: 1.8rem;
+            font-size: calc(1.2rem + 0.5vw); /* 動的なフォントサイズ */
             font-weight: bold;
             margin-top: 1rem;
         }
@@ -75,7 +76,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 4rem;
+            font-size: calc(2rem + 2vw); /* 動的なフォントサイズ */
             font-weight: bold;
             text-align: center;
             color: #ffd740;
@@ -124,7 +125,7 @@
             color: white;
             border: none;
             padding: 10px 20px;
-            font-size: 1rem;
+            font-size: calc(0.8rem + 0.3vw); /* 動的なフォントサイズ */
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
@@ -132,6 +133,32 @@
 
         .test-button:hover {
             background: #ff79a9;
+        }
+
+        @media (max-width: 768px) {
+            .countdown {
+                gap: 0.5rem;
+            }
+
+            .time-box {
+                width: calc(12vw + 50px);
+                height: calc(12vw + 50px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .time-box {
+                width: calc(15vw + 40px);
+                height: calc(15vw + 40px);
+            }
+
+            .test-button {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -171,6 +198,13 @@
         const ctx = fireworksCanvas.getContext('2d');
         fireworksCanvas.width = window.innerWidth;
         fireworksCanvas.height = window.innerHeight;
+
+        function resizeCanvas() {
+            fireworksCanvas.width = window.innerWidth;
+            fireworksCanvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
 
         const particles = [];
         const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE'];
