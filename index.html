@@ -13,8 +13,8 @@
             align-items: center;
             flex-direction: column;
             height: 100vh;
-            background: #ffffff; /* 背景を白に設定 */
-            color: #333; /* 全体の文字色を濃いグレーに調整 */
+            background: #ffffff;
+            color: #333;
             overflow: hidden;
         }
 
@@ -32,7 +32,17 @@
         h1 {
             font-size: calc(2.5rem + 1vw);
             margin-bottom: 1.5rem;
-            color: #333; /* タイトルの色を濃いグレーに */
+            color: #333;
+        }
+
+        h1 a {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        h1 a:hover {
+            color: #007BFF; /* リンクのホバー時に青色 */
         }
 
         .countdown {
@@ -44,7 +54,7 @@
         }
 
         .time-box {
-            background: linear-gradient(135deg, #b0bec5, #eceff1); /* 白背景に馴染む色合いに変更 */
+            background: linear-gradient(135deg, #b0bec5, #eceff1);
             border-radius: 50%;
             text-align: center;
             width: calc(10vw + 50px);
@@ -53,13 +63,13 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 軽い影を追加 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .time {
             font-size: calc(45% + 4vw);
             font-weight: bold;
-            color: #37474f; /* 時間の文字色を濃いグレーに */
+            color: #37474f;
             line-height: 1;
         }
 
@@ -67,15 +77,14 @@
             font-size: calc(0.8rem + 0.5vw);
             text-transform: uppercase;
             margin-top: 0.5rem;
-            color: #78909c; /* ラベルの色を淡いグレーに */
+            color: #78909c;
         }
 
         .target-time {
             font-size: calc(1.5rem + 0.5vw);
             font-weight: bold;
             margin-top: 1rem;
-            color: #455a64; /* 日時表示の文字色を調整 */
-            text-decoration: underline; /* 下線を追加 */
+            color: #455a64;
         }
 
         .new-year-message {
@@ -87,8 +96,8 @@
             font-size: calc(2.5rem + 1.5vw);
             font-weight: bold;
             text-align: center;
-            color: #ff4081; /* メッセージの色を見やすく変更 */
-            text-shadow: 0 0 15px #ff79a9, 0 0 25px #ff4081; /* 視認性を高める */
+            color: #1E88E5; /* 落ち着いたブルー */
+            text-shadow: 0 0 10px rgba(30, 136, 229, 0.5), 0 0 20px rgba(30, 136, 229, 0.7);
             animation: glow 1.5s infinite;
             z-index: 4;
             white-space: nowrap;
@@ -101,16 +110,16 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9); /* 背景をさらに暗く設定 */
+            background: rgba(0, 0, 0, 0.9);
             z-index: 3;
         }
 
         @keyframes glow {
             0%, 100% {
-                text-shadow: 0 0 10px #ff79a9, 0 0 15px #ff4081;
+                text-shadow: 0 0 10px rgba(30, 136, 229, 0.5), 0 0 20px rgba(30, 136, 229, 0.7);
             }
             50% {
-                text-shadow: 0 0 20px #ff4081, 0 0 30px #ff79a9;
+                text-shadow: 0 0 20px rgba(30, 136, 229, 0.8), 0 0 30px rgba(30, 136, 229, 1);
             }
         }
 
@@ -128,11 +137,11 @@
             position: fixed;
             bottom: 20px;
             left: 20px;
-            background: #e0e0e0; /* 目立たない灰色に変更 */
-            color: #616161; /* ボタンの文字色を濃い灰色に */
+            background: #e0e0e0;
+            color: #616161;
             border: none;
             padding: 10px 20px;
-            font-size: calc(0.9rem + 0.3vw); /* 少し小さく調整 */
+            font-size: calc(0.9rem + 0.3vw);
             border-radius: 8px;
             cursor: pointer;
             transition: background 0.3s;
@@ -140,7 +149,7 @@
         }
 
         .test-button:hover {
-            background: #cfcfcf; /* ホバー時にわずかに色を変える */
+            background: #cfcfcf;
         }
 
         .test-button.hidden {
@@ -222,7 +231,10 @@
 </head>
 <body>
     <div class="container">
-        <h1 id="year-title"></h1>
+        <h1 id="year-title">
+            <!-- 動的に生成されるリンク -->
+            <a id="dynamic-link" href="#" target="_blank"></a>
+        </h1>
         <div class="countdown">
             <div class="time-box">
                 <span id="days" class="time">0</span>
@@ -245,7 +257,7 @@
                 <span class="label">ミリ秒</span>
             </div>
         </div>
-        <a id="target-time" class="target-time" href="#" target="_blank"></a>
+        <div class="target-time" id="target-time"></div>
     </div>
     <div class="dark-overlay" id="dark-overlay"></div>
     <div class="new-year-message" id="new-year-message">試験開始</div>
@@ -267,7 +279,7 @@
         const stopButton = document.getElementById('stop-button');
         const darkOverlay = document.getElementById('dark-overlay');
         const newYearMessage = document.getElementById('new-year-message');
-        const targetTimeLink = document.getElementById('target-time');
+        const dynamicLink = document.getElementById('dynamic-link');
 
         let testDate = calculateTestDate();
         let countdownFinished = false;
@@ -334,9 +346,11 @@
             const testWeekday = weekdays[testDate.getDay()];
 
             document.getElementById('year-title').textContent = `令和${reiwaYear}年度大学入学共通テストまで残り`;
+            document.getElementById('target-time').textContent = `試験日時: ${testDate.getFullYear()}年${testDate.getMonth() + 1}月${testDate.getDate()}日（${testWeekday}） 9時30分`;
 
-            targetTimeLink.textContent = `試験日時: ${testDate.getFullYear()}年${testDate.getMonth() + 1}月${testDate.getDate()}日（${testWeekday}） 9時30分`;
-            targetTimeLink.href = `https://www.dnc.ac.jp/kyotsu/shiken_jouhou/r${reiwaYear}/`;
+            // 動的リンクの生成
+            dynamicLink.href = `https://www.dnc.ac.jp/kyotsu/shiken_jouhou/r${reiwaYear}/`;
+            dynamicLink.textContent = `令和${reiwaYear}年度大学入学共通テスト`;
         }
 
         function createFirework() {
