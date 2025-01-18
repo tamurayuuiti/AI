@@ -182,38 +182,84 @@
             z-index: 7;
         }
 
+        .test-button:hover {
+            background: #e0e0e0;
+            opacity: 0.7;
+        }
+
         .test-button.hidden {
             display: none;
         }
 
-        .close-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #f44336;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            font-size: 14px;
-            border-radius: 50%;
-            cursor: pointer;
-            opacity: 0.7;
-            z-index: 8;
-            display: none;
-        }
-
-        .close-button:hover {
-            opacity: 1;
-        }
-
         @media (max-width: 768px) {
+            body {
+                justify-content: center;
+                align-items: center;
+            }
+
+            h1 {
+                font-size: calc(2rem + 1vw);
+            }
+
+            .countdown {
+                gap: 0.8rem;
+            }
+
+            .time-box {
+                width: calc(12vw + 40px);
+                height: calc(12vw + 40px);
+            }
+
             .test-button {
                 padding: 6px 10px;
                 font-size: 10px;
             }
-            .close-button {
-                font-size: 12px;
-                padding: 4px 8px;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                justify-content: center;
+                align-items: center;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .time-box {
+                width: calc(14vw + 30px);
+                height: calc(14vw + 30px);
+            }
+
+            .label {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (orientation: landscape) {
+            body {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .container {
+                text-align: center;
+            }
+
+            .countdown {
+                flex-wrap: wrap;
+                gap: 1rem;
+                justify-content: center;
+            }
+
+            .time-box {
+                width: calc(8vw + 40px);
+                height: calc(8vw + 40px);
+            }
+
+            .time {
+                font-size: calc(40% + 4vw);
             }
         }
     </style>
@@ -254,29 +300,9 @@
     <div class="dark-overlay" id="dark-overlay"></div>
     <div class="new-year-message" id="new-year-message">試験開始</div>
     <canvas class="fireworks" id="fireworks"></canvas>
-    <button class="test-button hidden" id="start-button" onclick="startAnimation()">アニメーション開始</button>
-    <button class="close-button" id="close-button" onclick="stopAnimation()">×</button>
+    <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
+    <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
     <script>
-        const SHOW_TEST_BUTTON = true; // テストボタン表示フラグ
-        const startButton = document.getElementById('start-button');
-        if (SHOW_TEST_BUTTON) {
-            startButton.classList.remove('hidden');
-        }
-
-        const closeButton = document.getElementById('close-button');
-
-        function startAnimation() {
-            document.getElementById('dark-overlay').style.display = 'block';
-            document.getElementById('new-year-message').style.display = 'block';
-            closeButton.style.display = 'block';
-        }
-
-        function stopAnimation() {
-            document.getElementById('dark-overlay').style.display = 'none';
-            document.getElementById('new-year-message').style.display = 'none';
-            closeButton.style.display = 'none';
-        }
-    </script>
         const progressBar = document.getElementById('progress-bar');
         const progressPercentageText = document.getElementById('progress-percentage');
         const fireworksCanvas = document.getElementById('fireworks');
