@@ -33,23 +33,17 @@
             font-size: calc(2.5rem + 1vw);
             margin-bottom: 1.5rem;
             color: #333;
-            line-height: 1.2;
-            font-size: 0; /* スペースを無効化 */
+            white-space: nowrap; /* 不要な改行を防止 */
         }
 
         h1 a {
-            font-size: calc(2.5rem + 1vw); /* 再適用 */
             color: #333;
             text-decoration: none;
             transition: color 0.3s;
         }
 
         h1 a:hover {
-            color: #007BFF;
-        }
-
-        h1 span {
-            font-size: calc(2.5rem + 1vw); /* 再適用 */
+            color: #007BFF; /* リンクホバー時の色変更 */
         }
 
         .countdown {
@@ -238,9 +232,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>
-            <a id="dynamic-link" href="#" target="_blank"></a><span>まで残り</span>
-        </h1>
+        <h1 id="year-title"><a id="dynamic-link" href="#" target="_blank"></a>まで残り</h1>
         <div class="countdown">
             <div class="time-box">
                 <span id="days" class="time">0</span>
