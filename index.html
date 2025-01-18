@@ -12,7 +12,7 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            height: 100vh; /* 画面全体を占める高さ */
+            height: 100vh; /* 初期設定で高さを指定 */
             background: linear-gradient(135deg, #4facfe, #00f2fe);
             color: #fff;
             overflow: hidden;
@@ -24,7 +24,7 @@
             padding: 1rem;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* 縦方向の中央揃え */
+            justify-content: center;
             align-items: center;
             height: 100%; /* 親要素の高さを基準に調整 */
         }
@@ -122,8 +122,8 @@
         }
 
         .test-button {
-            position: fixed;
-            bottom: 20px;
+            position: absolute;
+            bottom: 20px; /* 他の要素と干渉しないよう調整 */
             left: 50%;
             transform: translateX(-50%);
             background: #ff4081;
@@ -253,12 +253,13 @@
         const particles = [];
         const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE'];
 
-        function resizeCanvas() {
-            fireworksCanvas.width = window.innerWidth;
-            fireworksCanvas.height = window.innerHeight;
+        // 動的に高さを補正する関数
+        function adjustHeight() {
+            document.body.style.height = `${window.innerHeight}px`;
         }
 
-        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('resize', adjustHeight);
+        adjustHeight();
 
         function calculateTestDate() {
             const now = new Date();
