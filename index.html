@@ -42,7 +42,7 @@
             background: linear-gradient(135deg, #536DFE, #69F0AE);
             border-radius: 50%;
             text-align: center;
-            width: calc(10vw + 50px); /* サイズを調整 */
+            width: calc(10vw + 50px);
             height: calc(10vw + 50px);
             display: flex;
             flex-direction: column;
@@ -52,7 +52,7 @@
         }
 
         .time {
-            font-size: calc(50% + 5vw); /* カウンターのサイズに比例 */
+            font-size: calc(45% + 4vw); /* サイズを少し小さく調整 */
             font-weight: bold;
             color: #fff;
             line-height: 1;
@@ -137,6 +137,11 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                justify-content: center; /* 全体を中央揃え */
+                align-items: center;
+            }
+
             h1 {
                 font-size: calc(2rem + 1vw);
             }
@@ -157,6 +162,11 @@
         }
 
         @media (max-width: 480px) {
+            body {
+                justify-content: center; /* 中央揃えを維持 */
+                align-items: center;
+            }
+
             h1 {
                 font-size: 2rem;
             }
@@ -173,10 +183,9 @@
 
         @media (orientation: landscape) {
             body {
-                flex-direction: row; /* 横画面でも中央基準 */
+                flex-direction: column; /* 縦並びを維持 */
                 justify-content: center;
                 align-items: center;
-                height: 100vh; /* 横画面時も中央揃え */
             }
 
             .container {
