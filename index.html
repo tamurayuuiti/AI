@@ -25,16 +25,17 @@
         }
 
         h1 {
-            font-size: calc(2.5rem + 1vw); /* フォントサイズを調整 */
+            font-size: calc(2.5rem + 1vw);
             margin-bottom: 1.5rem;
         }
 
         .countdown {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 1rem;
             margin-bottom: 2rem;
-            flex-wrap: wrap; /* 横幅が広い場合に折り返し可能に */
+            flex-wrap: wrap;
         }
 
         .time-box {
@@ -51,21 +52,21 @@
         }
 
         .time {
-            font-size: calc(2rem + 1vw);
+            font-size: calc(50% + 5vw); /* カウンターのサイズに比例 */
             font-weight: bold;
             color: #fff;
             line-height: 1;
         }
 
         .label {
-            font-size: calc(1rem + 0.3vw);
+            font-size: calc(0.8rem + 0.5vw);
             text-transform: uppercase;
             margin-top: 0.5rem;
             color: rgba(255, 255, 255, 0.8);
         }
 
         .target-time {
-            font-size: calc(1.5rem + 0.5vw); /* タイトルのサイズを調整 */
+            font-size: calc(1.5rem + 0.5vw);
             font-weight: bold;
             margin-top: 1rem;
         }
@@ -172,32 +173,29 @@
 
         @media (orientation: landscape) {
             body {
-                flex-direction: row; /* 横画面時にカウントダウンが横並びになるように調整 */
-                height: auto;
+                flex-direction: row; /* 横画面でも中央基準 */
+                justify-content: center;
+                align-items: center;
+                height: 100vh; /* 横画面時も中央揃え */
             }
 
             .container {
-                text-align: left; /* 横画面では左揃え */
-                margin-left: 2rem;
-            }
-
-            h1 {
-                font-size: calc(1.8rem + 1vw); /* 横画面用に少し縮小 */
+                text-align: center;
             }
 
             .countdown {
+                flex-wrap: wrap;
                 gap: 1rem;
-                justify-content: flex-start;
-                flex-wrap: nowrap; /* 横並び */
+                justify-content: center;
             }
 
             .time-box {
-                width: calc(8vw + 50px); /* 横画面時の適切なサイズ */
-                height: calc(8vw + 50px);
+                width: calc(8vw + 40px);
+                height: calc(8vw + 40px);
             }
 
             .time {
-                font-size: calc(1.5rem + 1vw);
+                font-size: calc(40% + 4vw); /* ボックスサイズに比例 */
             }
         }
     </style>
