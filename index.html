@@ -262,6 +262,8 @@
 
         const startButton = document.getElementById('start-button');
         const stopButton = document.getElementById('stop-button');
+        const darkOverlay = document.getElementById('dark-overlay');
+        const newYearMessage = document.getElementById('new-year-message');
 
         function adjustHeight() {
             document.body.style.height = `${window.innerHeight}px`;
@@ -390,9 +392,8 @@
         }
 
         function showNewYearCelebration() {
-            document.getElementById('dark-overlay').style.display = 'block';
-            document.getElementById('new-year-message').style.display = 'block';
-            startAnimation();
+            darkOverlay.style.display = 'block';
+            newYearMessage.style.display = 'block';
         }
 
         function startAnimation() {
@@ -402,6 +403,7 @@
             if (!drawInterval) {
                 drawInterval = setInterval(drawFireworks, 33);
             }
+            showNewYearCelebration();
             startButton.classList.add('hidden');
             stopButton.classList.remove('hidden');
         }
@@ -412,6 +414,8 @@
             clearInterval(drawInterval);
             drawInterval = null;
             clearCanvas();
+            darkOverlay.style.display = 'none';
+            newYearMessage.style.display = 'none';
             startButton.classList.remove('hidden');
             stopButton.classList.add('hidden');
         }
