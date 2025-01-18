@@ -35,13 +35,18 @@
             color: #333;
         }
 
-        h1 a {
+        h1 .dynamic-link,
+        h1 .remaining-text {
+            display: inline; /* インラインで表示してスペースを排除 */
+        }
+
+        .dynamic-link a {
             color: #333;
-            text-decoration: none;
+            text-decoration: none; /* 下線を非表示 */
             transition: color 0.3s;
         }
 
-        h1 a:hover {
+        .dynamic-link a:hover {
             color: #007BFF; /* リンクホバー時の色変更 */
         }
 
@@ -232,8 +237,10 @@
 <body>
     <div class="container">
         <h1 id="year-title">
-            <a id="dynamic-link" href="#" target="_blank"></a>
-            まで残り
+            <span class="dynamic-link">
+                <a id="dynamic-link" href="#" target="_blank"></a>
+            </span>
+            <span class="remaining-text">まで残り</span>
         </h1>
         <div class="countdown">
             <div class="time-box">
