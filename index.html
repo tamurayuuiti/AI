@@ -303,6 +303,8 @@
     <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
     <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
     <script>
+        const startButton = document.getElementById('start-button');
+        const stopButton = document.getElementById('stop-button');
         const progressBar = document.getElementById('progress-bar');
         const progressPercentageText = document.getElementById('progress-percentage');
         const fireworksCanvas = document.getElementById('fireworks');
@@ -315,8 +317,6 @@
         let fireworkInterval = null;
         let drawInterval = null;
 
-        const startButton = document.getElementById('start-button');
-        const stopButton = document.getElementById('stop-button');
         const darkOverlay = document.getElementById('dark-overlay');
         const newYearMessage = document.getElementById('new-year-message');
         const dynamicLink = document.getElementById('dynamic-link');
@@ -395,11 +395,10 @@
             dynamicLink.textContent = `令和${reiwaYear}年度大学入学共通テスト`;
             document.getElementById('target-time').textContent = `試験日時: ${testDate.getFullYear()}年${testDate.getMonth() + 1}月${testDate.getDate()}日（${testWeekday}） 9時30分`;
 
-            // 進行度バーの更新
             const progressPercentage = Math.min(
                 ((oneYearInMillis - timeDifference) / oneYearInMillis) * 100,
                 100
-            ).toFixed(6); // 小数点第6位まで表示
+            ).toFixed(6);
             progressBar.style.width = `${progressPercentage}%`;
             progressPercentageText.textContent = `${progressPercentage}%`;
         }
@@ -472,7 +471,21 @@
             newYearMessage.style.display = 'block';
         }
 
+        function toggleTestButton(buttonId, show) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                if (show) {
+                    button.classList.remove('hidden'); // ボタンを表示
+                } else {
+                    button.classList.add('hidden'); // ボタンを非表示
+                }
+            }
+        }
+
         function startAnimation() {
+            toggleTestButton('start-button', false);
+            toggleTestButton('stop-button', true);
+
             if (!fireworkInterval) {
                 fireworkInterval = setInterval(createFirework, 1000);
             }
@@ -480,11 +493,12 @@
                 drawInterval = setInterval(drawFireworks, 33);
             }
             showNewYearCelebration();
-            startButton.classList.add('hidden');
-            stopButton.classList.remove('hidden');
         }
 
         function stopAnimation() {
+            toggleTestButton('stop-button', false);
+            toggleTestButton('start-button', true);
+
             clearInterval(fireworkInterval);
             fireworkInterval = null;
             clearInterval(drawInterval);
@@ -492,8 +506,6 @@
             clearCanvas();
             darkOverlay.style.display = 'none';
             newYearMessage.style.display = 'none';
-            startButton.classList.remove('hidden');
-            stopButton.classList.add('hidden');
         }
 
         function clearCanvas() {
