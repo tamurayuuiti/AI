@@ -168,21 +168,23 @@
 
         .test-button {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: #e0e0e0;
-            color: #616161;
+            bottom: 10px;
+            right: 10px;
+            background: #f5f5f5;
+            color: #bdbdbd;
             border: none;
-            padding: 10px 20px;
-            font-size: calc(0.9rem + 0.3vw);
-            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background 0.3s;
+            opacity: 0.5;
+            transition: background 0.3s, opacity 0.3s;
             z-index: 7;
         }
 
         .test-button:hover {
-            background: #cfcfcf;
+            background: #e0e0e0;
+            opacity: 0.7;
         }
 
         .test-button.hidden {
@@ -209,8 +211,8 @@
             }
 
             .test-button {
-                padding: 8px 18px;
-                font-size: calc(0.8rem + 0.2vw);
+                padding: 6px 10px;
+                font-size: 10px;
             }
         }
 
