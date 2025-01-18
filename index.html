@@ -42,7 +42,7 @@
         }
 
         h1 a:hover {
-            color: #007BFF; /* リンクのホバー時に青色 */
+            color: #007BFF;
         }
 
         .countdown {
@@ -96,7 +96,7 @@
             font-size: calc(2.5rem + 1.5vw);
             font-weight: bold;
             text-align: center;
-            color: #1E88E5; /* 落ち着いたブルー */
+            color: #1E88E5;
             text-shadow: 0 0 10px rgba(30, 136, 229, 0.5), 0 0 20px rgba(30, 136, 229, 0.7);
             animation: glow 1.5s infinite;
             z-index: 4;
@@ -348,7 +348,7 @@
             document.getElementById('year-title').textContent = `令和${reiwaYear}年度大学入学共通テストまで残り`;
             document.getElementById('target-time').textContent = `試験日時: ${testDate.getFullYear()}年${testDate.getMonth() + 1}月${testDate.getDate()}日（${testWeekday}） 9時30分`;
 
-            // 動的リンクの生成
+            // 動的リンクの生成（正常にリンク先を生成）
             dynamicLink.href = `https://www.dnc.ac.jp/kyotsu/shiken_jouhou/r${reiwaYear}/`;
             dynamicLink.textContent = `令和${reiwaYear}年度大学入学共通テスト`;
         }
