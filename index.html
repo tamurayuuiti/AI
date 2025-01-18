@@ -37,12 +37,12 @@
 
         h1 a {
             color: #333;
-            text-decoration: none; /* 下線を非表示 */
+            text-decoration: none;
             transition: color 0.3s;
         }
 
         h1 a:hover {
-            color: #007BFF; /* リンクホバー時に色を変更 */
+            color: #007BFF; /* リンクホバー時の色変更 */
         }
 
         .countdown {
@@ -231,7 +231,10 @@
 </head>
 <body>
     <div class="container">
-        <h1 id="year-title"></h1>
+        <h1 id="year-title">
+            <a id="dynamic-link" href="#" target="_blank"></a>
+            まで残り
+        </h1>
         <div class="countdown">
             <div class="time-box">
                 <span id="days" class="time">0</span>
@@ -267,6 +270,8 @@
         fireworksCanvas.width = window.innerWidth;
         fireworksCanvas.height = window.innerHeight;
 
+        const particles = [];
+        const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE'];
         let fireworkInterval = null;
         let drawInterval = null;
 
@@ -274,10 +279,17 @@
         const stopButton = document.getElementById('stop-button');
         const darkOverlay = document.getElementById('dark-overlay');
         const newYearMessage = document.getElementById('new-year-message');
-        const yearTitle = document.getElementById('year-title');
+        const dynamicLink = document.getElementById('dynamic-link');
 
         let testDate = calculateTestDate();
         let countdownFinished = false;
+
+        function adjustHeight() {
+            document.body.style.height = `${window.innerHeight}px`;
+        }
+
+        window.addEventListener('resize', adjustHeight);
+        adjustHeight();
 
         function calculateTestDate() {
             const now = new Date();
@@ -333,10 +345,8 @@
             const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
             const testWeekday = weekdays[testDate.getDay()];
 
-            yearTitle.innerHTML = `
-                <a href="https://www.dnc.ac.jp/kyotsu/shiken_jouhou/r${reiwaYear}/" target="_blank">
-                    令和${reiwaYear}年度大学入学共通テスト
-                </a>まで残り`;
+            dynamicLink.href = `https://www.dnc.ac.jp/kyotsu/shiken_jouhou/r${reiwaYear}/`;
+            dynamicLink.textContent = `令和${reiwaYear}年度大学入学共通テスト`;
             document.getElementById('target-time').textContent = `試験日時: ${testDate.getFullYear()}年${testDate.getMonth() + 1}月${testDate.getDate()}日（${testWeekday}） 9時30分`;
         }
 
