@@ -25,7 +25,7 @@
         }
 
         h1 {
-            font-size: calc(2.5rem + 1vw); /* フォントサイズを少し拡大 */
+            font-size: calc(2.5rem + 1vw); /* フォントサイズを調整 */
             margin-bottom: 1.5rem;
         }
 
@@ -34,15 +34,15 @@
             justify-content: center;
             gap: 1rem;
             margin-bottom: 2rem;
-            flex-wrap: wrap;
+            flex-wrap: wrap; /* 横幅が広い場合に折り返し可能に */
         }
 
         .time-box {
             background: linear-gradient(135deg, #536DFE, #69F0AE);
             border-radius: 50%;
             text-align: center;
-            width: calc(12vw + 50px); /* スマホ対応で余裕を持ったサイズ */
-            height: calc(12vw + 50px);
+            width: calc(10vw + 50px); /* サイズを調整 */
+            height: calc(10vw + 50px);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -51,21 +51,21 @@
         }
 
         .time {
-            font-size: calc(2rem + 1vw); /* 数字を大きくして視認性向上 */
+            font-size: calc(2rem + 1vw);
             font-weight: bold;
             color: #fff;
             line-height: 1;
         }
 
         .label {
-            font-size: calc(1rem + 0.5vw); /* ラベルのフォントサイズを調整 */
+            font-size: calc(1rem + 0.3vw);
             text-transform: uppercase;
             margin-top: 0.5rem;
             color: rgba(255, 255, 255, 0.8);
         }
 
         .target-time {
-            font-size: calc(1.5rem + 0.5vw); /* フォントサイズを拡大 */
+            font-size: calc(1.5rem + 0.5vw); /* タイトルのサイズを調整 */
             font-weight: bold;
             margin-top: 1rem;
         }
@@ -76,7 +76,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: calc(2.5rem + 1.5vw); /* サイズを調整 */
+            font-size: calc(2.5rem + 1.5vw);
             font-weight: bold;
             text-align: center;
             color: #ffd740;
@@ -124,9 +124,9 @@
             background: #ff4081;
             color: white;
             border: none;
-            padding: 15px 30px; /* ボタンサイズを拡大 */
-            font-size: calc(1rem + 0.5vw); /* フォントサイズを調整 */
-            border-radius: 10px; /* ボタンを丸みのあるデザインに */
+            padding: 15px 30px;
+            font-size: calc(1rem + 0.5vw);
+            border-radius: 10px;
             cursor: pointer;
             transition: background 0.3s;
         }
@@ -137,7 +137,7 @@
 
         @media (max-width: 768px) {
             h1 {
-                font-size: calc(2rem + 1vw); /* スマホ用に調整 */
+                font-size: calc(2rem + 1vw);
             }
 
             .countdown {
@@ -145,12 +145,12 @@
             }
 
             .time-box {
-                width: calc(14vw + 40px); /* サイズを調整 */
-                height: calc(14vw + 40px);
+                width: calc(12vw + 40px);
+                height: calc(12vw + 40px);
             }
 
             .test-button {
-                padding: 12px 25px; /* ボタンのパディングを縮小 */
+                padding: 12px 25px;
                 font-size: calc(0.9rem + 0.3vw);
             }
         }
@@ -161,17 +161,43 @@
             }
 
             .time-box {
-                width: calc(16vw + 30px); /* スマホ用にさらに縮小 */
-                height: calc(16vw + 30px);
-            }
-
-            .test-button {
-                padding: 10px 20px;
-                font-size: 0.9rem;
+                width: calc(14vw + 30px);
+                height: calc(14vw + 30px);
             }
 
             .label {
-                font-size: 0.9rem; /* ラベルのフォントサイズを調整 */
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (orientation: landscape) {
+            body {
+                flex-direction: row; /* 横画面時にカウントダウンが横並びになるように調整 */
+                height: auto;
+            }
+
+            .container {
+                text-align: left; /* 横画面では左揃え */
+                margin-left: 2rem;
+            }
+
+            h1 {
+                font-size: calc(1.8rem + 1vw); /* 横画面用に少し縮小 */
+            }
+
+            .countdown {
+                gap: 1rem;
+                justify-content: flex-start;
+                flex-wrap: nowrap; /* 横並び */
+            }
+
+            .time-box {
+                width: calc(8vw + 50px); /* 横画面時の適切なサイズ */
+                height: calc(8vw + 50px);
+            }
+
+            .time {
+                font-size: calc(1.5rem + 1vw);
             }
         }
     </style>
