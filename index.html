@@ -96,10 +96,12 @@
             background: linear-gradient(90deg, #4caf50, #81c784);
             width: 0%;
             transition: width 0.5s ease-out;
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
-        .progress-bar span {
+        .progress-bar-container span {
             position: absolute;
             left: 50%;
             top: 50%;
@@ -108,6 +110,7 @@
             color: black;
             font-weight: bold;
             white-space: nowrap;
+            z-index: 1;
         }
 
         .target-time {
@@ -287,9 +290,8 @@
             </div>
         </div>
         <div class="progress-bar-container">
-            <div class="progress-bar" id="progress-bar">
-                <span id="progress-percentage">0.000000%</span>
-            </div>
+            <div class="progress-bar" id="progress-bar"></div>
+            <span id="progress-percentage">0.000000%</span>
         </div>
         <div class="target-time" id="target-time"></div>
     </div>
@@ -395,7 +397,7 @@
             const progressPercentage = Math.min(
                 ((oneYearInMillis - timeDifference) / oneYearInMillis) * 100,
                 100
-            ).toFixed(6);
+            ).toFixed(6); // 小数点第6位まで表示
             progressBar.style.width = `${progressPercentage}%`;
             progressPercentageText.textContent = `${progressPercentage}%`;
         }
