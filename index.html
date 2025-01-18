@@ -96,6 +96,18 @@
             background: linear-gradient(90deg, #4caf50, #81c784);
             width: 0%;
             transition: width 0.5s ease-out;
+            position: relative;
+        }
+
+        .progress-bar span {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+            white-space: nowrap;
         }
 
         .target-time {
@@ -275,7 +287,9 @@
             </div>
         </div>
         <div class="progress-bar-container">
-            <div class="progress-bar" id="progress-bar"></div>
+            <div class="progress-bar" id="progress-bar">
+                <span id="progress-percentage">0.00%</span>
+            </div>
         </div>
         <div class="target-time" id="target-time"></div>
     </div>
@@ -286,6 +300,7 @@
     <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
     <script>
         const progressBar = document.getElementById('progress-bar');
+        const progressPercentageText = document.getElementById('progress-percentage');
         const fireworksCanvas = document.getElementById('fireworks');
         const ctx = fireworksCanvas.getContext('2d');
         fireworksCanvas.width = window.innerWidth;
@@ -380,8 +395,9 @@
             const progressPercentage = Math.min(
                 ((oneYearInMillis - timeDifference) / oneYearInMillis) * 100,
                 100
-            );
+            ).toFixed(2);
             progressBar.style.width = `${progressPercentage}%`;
+            progressPercentageText.textContent = `${progressPercentage}%`;
         }
 
         function createFirework() {
