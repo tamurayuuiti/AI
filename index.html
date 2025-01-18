@@ -290,6 +290,12 @@
         window.addEventListener('resize', adjustHeight);
         adjustHeight();
 
+        // 新しい resize イベントリスナーを追加
+        window.addEventListener('resize', () => {
+            fireworksCanvas.width = window.innerWidth;
+            fireworksCanvas.height = window.innerHeight;
+        });
+
         function calculateTestDate() {
             const now = new Date();
             const year = now.getFullYear();
