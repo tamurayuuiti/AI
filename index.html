@@ -100,7 +100,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.8); /* 白背景に合わせた半透明 */
+            background: rgba(0, 0, 0, 0.9); /* 背景をさらに暗く設定 */
             z-index: 3;
         }
 
@@ -258,7 +258,7 @@
         fireworksCanvas.height = window.innerHeight;
 
         const particles = [];
-        const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE']; // 元のカラフルな色に戻しました
+        const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE'];
         let fireworkInterval = null;
         let drawInterval = null;
 
@@ -267,7 +267,7 @@
         const darkOverlay = document.getElementById('dark-overlay');
         const newYearMessage = document.getElementById('new-year-message');
 
-        let testDate = calculateTestDate(); // サイト読み込み時に一度だけ計算
+        let testDate = calculateTestDate();
         let countdownFinished = false;
 
         function adjustHeight() {
@@ -312,7 +312,7 @@
                     countdownFinished = true;
                     startAnimation();
                 }
-                return; // カウントが0になった後は維持
+                return;
             }
 
             const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
