@@ -99,7 +99,7 @@
             color: #1E88E5; /* 落ち着いたブルー */
             text-shadow: 0 0 10px rgba(30, 136, 229, 0.5), 0 0 20px rgba(30, 136, 229, 0.7);
             animation: glow 1.5s infinite;
-            z-index: 4;
+            z-index: 4; /* "試験開始"を最前面に設定 */
             white-space: nowrap;
         }
 
@@ -111,7 +111,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.9);
-            z-index: 3;
+            z-index: 3; /* 花火と背景より前面 */
         }
 
         @keyframes glow {
@@ -130,7 +130,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 4;
+            z-index: 2; /* 花火を"試験開始"の後ろに設定 */
         }
 
         .test-button {
@@ -232,8 +232,7 @@
 <body>
     <div class="container">
         <h1 id="year-title">
-            <!-- 動的に生成されるリンク -->
-            <a id="dynamic-link" href="#" target="_blank"></a>
+            <a id="dynamic-link" href="#" target="_blank">令和◯年度大学入学共通テスト</a>
         </h1>
         <div class="countdown">
             <div class="time-box">
@@ -260,8 +259,8 @@
         <div class="target-time" id="target-time"></div>
     </div>
     <div class="dark-overlay" id="dark-overlay"></div>
-    <div class="new-year-message" id="new-year-message">試験開始</div>
     <canvas class="fireworks" id="fireworks"></canvas>
+    <div class="new-year-message" id="new-year-message">試験開始</div>
     <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
     <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
     <script>
@@ -348,7 +347,6 @@
             document.getElementById('year-title').textContent = `令和${reiwaYear}年度大学入学共通テストまで残り`;
             document.getElementById('target-time').textContent = `試験日時: ${testDate.getFullYear()}年${testDate.getMonth() + 1}月${testDate.getDate()}日（${testWeekday}） 9時30分`;
 
-            // 動的リンクの生成
             dynamicLink.href = `https://www.dnc.ac.jp/kyotsu/shiken_jouhou/r${reiwaYear}/`;
             dynamicLink.textContent = `令和${reiwaYear}年度大学入学共通テスト`;
         }
