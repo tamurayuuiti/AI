@@ -182,33 +182,39 @@
             z-index: 7;
         }
 
-        .test-button:hover {
-            background: #e0e0e0;
-            opacity: 0.7;
-        }
-
         .test-button.hidden {
             display: none;
         }
 
         .close-button {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #e57373;
+            top: 20px;
+            right: 20px;
+            background: #f44336;
             color: white;
-            font-size: 14px;
             border: none;
             padding: 5px 10px;
+            font-size: 14px;
             border-radius: 50%;
             cursor: pointer;
+            opacity: 0.7;
             z-index: 8;
-            opacity: 0.8;
-            transition: opacity 0.3s;
+            display: none;
         }
 
         .close-button:hover {
             opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .test-button {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+            .close-button {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
         }
     </style>
 </head>
@@ -249,24 +255,26 @@
     <div class="new-year-message" id="new-year-message">試験開始</div>
     <canvas class="fireworks" id="fireworks"></canvas>
     <button class="test-button hidden" id="start-button" onclick="startAnimation()">アニメーション開始</button>
-    <button class="close-button hidden" id="close-button" onclick="stopAnimation()">×</button>
+    <button class="close-button" id="close-button" onclick="stopAnimation()">×</button>
     <script>
-        const showTestButtons = true; // true にするとボタンが表示され、false で非表示
+        const SHOW_TEST_BUTTON = true; // テストボタン表示フラグ
         const startButton = document.getElementById('start-button');
-        const closeButton = document.getElementById('close-button');
-
-        if (showTestButtons) {
+        if (SHOW_TEST_BUTTON) {
             startButton.classList.remove('hidden');
         }
 
+        const closeButton = document.getElementById('close-button');
+
         function startAnimation() {
-            // アニメーション開始処理
-            closeButton.classList.remove('hidden');
+            document.getElementById('dark-overlay').style.display = 'block';
+            document.getElementById('new-year-message').style.display = 'block';
+            closeButton.style.display = 'block';
         }
 
         function stopAnimation() {
-            // アニメーション停止処理
-            closeButton.classList.add('hidden');
+            document.getElementById('dark-overlay').style.display = 'none';
+            document.getElementById('new-year-message').style.display = 'none';
+            closeButton.style.display = 'none';
         }
     </script>
         const progressBar = document.getElementById('progress-bar');
