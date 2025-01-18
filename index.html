@@ -13,8 +13,8 @@
             align-items: center;
             flex-direction: column;
             height: 100vh;
-            background: linear-gradient(135deg, #1e293b, #64748b);
-            color: #e2e8f0;
+            background: #ffffff; /* 背景を白に設定 */
+            color: #333; /* 全体の文字色を濃いグレーに調整 */
             overflow: hidden;
         }
 
@@ -32,7 +32,7 @@
         h1 {
             font-size: calc(2.5rem + 1vw);
             margin-bottom: 1.5rem;
-            color: #f1f5f9;
+            color: #333; /* タイトルの色を濃いグレーに */
         }
 
         .countdown {
@@ -44,7 +44,7 @@
         }
 
         .time-box {
-            background: linear-gradient(135deg, #334155, #94a3b8);
+            background: linear-gradient(135deg, #b0bec5, #eceff1); /* 白背景に馴染む色合いに変更 */
             border-radius: 50%;
             text-align: center;
             width: calc(10vw + 50px);
@@ -53,13 +53,13 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 軽い影を追加 */
         }
 
         .time {
             font-size: calc(45% + 4vw);
             font-weight: bold;
-            color: #f8fafc;
+            color: #37474f; /* 時間の文字色を濃いグレーに */
             line-height: 1;
         }
 
@@ -67,14 +67,14 @@
             font-size: calc(0.8rem + 0.5vw);
             text-transform: uppercase;
             margin-top: 0.5rem;
-            color: rgba(248, 250, 252, 0.8);
+            color: #78909c; /* ラベルの色を淡いグレーに */
         }
 
         .target-time {
             font-size: calc(1.5rem + 0.5vw);
             font-weight: bold;
             margin-top: 1rem;
-            color: #cbd5e1;
+            color: #455a64; /* 日時表示の文字色を調整 */
         }
 
         .new-year-message {
@@ -86,8 +86,8 @@
             font-size: calc(2.5rem + 1.5vw);
             font-weight: bold;
             text-align: center;
-            color: #facc15;
-            text-shadow: 0 0 30px #fb923c, 0 0 50px #fb923c;
+            color: #546e7a; /* メッセージの色を落ち着いたグレーに */
+            text-shadow: 0 0 10px #b0bec5, 0 0 15px #cfd8dc; /* 控えめな輝き */
             animation: glow 1.5s infinite;
             z-index: 4;
             white-space: nowrap;
@@ -100,16 +100,16 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(255, 255, 255, 0.8); /* 白背景に合わせた半透明 */
             z-index: 3;
         }
 
         @keyframes glow {
             0%, 100% {
-                text-shadow: 0 0 20px #fb923c, 0 0 40px #fb923c;
+                text-shadow: 0 0 10px #b0bec5, 0 0 15px #cfd8dc;
             }
             50% {
-                text-shadow: 0 0 40px #fde047, 0 0 60px #fb923c;
+                text-shadow: 0 0 15px #90a4ae, 0 0 20px #b0bec5;
             }
         }
 
@@ -127,20 +127,19 @@
             position: fixed;
             bottom: 20px;
             left: 20px;
-            background: #1e293b;
-            color: #94a3b8;
+            background: #e0e0e0; /* 目立たない灰色に変更 */
+            color: #616161; /* ボタンの文字色を濃い灰色に */
             border: none;
-            padding: 12px 20px;
-            font-size: calc(0.8rem + 0.4vw);
+            padding: 10px 20px;
+            font-size: calc(0.9rem + 0.3vw); /* 少し小さく調整 */
             border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s, color 0.3s;
+            transition: background 0.3s;
             z-index: 5;
         }
 
         .test-button:hover {
-            background: #475569;
-            color: #e2e8f0;
+            background: #cfcfcf; /* ホバー時にわずかに色を変える */
         }
 
         .test-button.hidden {
@@ -167,8 +166,8 @@
             }
 
             .test-button {
-                padding: 10px 18px;
-                font-size: calc(0.8rem + 0.3vw);
+                padding: 8px 18px;
+                font-size: calc(0.8rem + 0.2vw);
             }
         }
 
@@ -253,14 +252,13 @@
     <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
     <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
     <script>
-        // JavaScript部分は省略せず、完全な形で以下に続けます。
         const fireworksCanvas = document.getElementById('fireworks');
         const ctx = fireworksCanvas.getContext('2d');
         fireworksCanvas.width = window.innerWidth;
         fireworksCanvas.height = window.innerHeight;
 
         const particles = [];
-        const colors = ['#93c5fd', '#a5f3fc', '#fef3c7', '#facc15', '#fb923c'];
+        const colors = ['#546e7a', '#90a4ae', '#b0bec5', '#cfd8dc', '#eceff1']; // 色味を白背景に合わせて調整
         let fireworkInterval = null;
         let drawInterval = null;
 
