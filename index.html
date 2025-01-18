@@ -265,6 +265,9 @@
         const darkOverlay = document.getElementById('dark-overlay');
         const newYearMessage = document.getElementById('new-year-message');
 
+        let testDate = calculateTestDate(); // サイト読み込み時に一度だけ計算
+        let countdownFinished = false;
+
         function adjustHeight() {
             document.body.style.height = `${window.innerHeight}px`;
         }
@@ -300,12 +303,14 @@
 
         function updateCountdown() {
             const now = new Date();
-            const testDate = calculateTestDate();
             const timeDifference = testDate - now;
 
             if (timeDifference <= 0) {
-                showNewYearCelebration();
-                return;
+                if (!countdownFinished) {
+                    countdownFinished = true;
+                    startAnimation();
+                }
+                return; // カウントが0になった後は維持
             }
 
             const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
@@ -429,4 +434,4 @@
         updateCountdown();
     </script>
 </body>
-<html>
+</html>
