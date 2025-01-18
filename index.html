@@ -35,14 +35,14 @@
             color: #333;
         }
 
-        h1 a {
+        h1 span a {
             color: #333;
-            text-decoration: none;
+            text-decoration: none; /* 下線を非表示 */
             transition: color 0.3s;
         }
 
-        h1 a:hover {
-            color: #007BFF;
+        h1 span a:hover {
+            color: #007BFF; /* リンクホバー時に色を変更 */
         }
 
         .countdown {
@@ -99,7 +99,7 @@
             color: #1E88E5;
             text-shadow: 0 0 10px rgba(30, 136, 229, 0.5), 0 0 20px rgba(30, 136, 229, 0.7);
             animation: glow 1.5s infinite;
-            z-index: 6; /* 最前面 */
+            z-index: 6;
             white-space: nowrap;
         }
 
@@ -111,7 +111,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.9);
-            z-index: 4; /* 背景 */
+            z-index: 4;
         }
 
         @keyframes glow {
@@ -130,7 +130,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 5; /* 花火はメッセージの後ろに配置 */
+            z-index: 5;
         }
 
         .test-button {
@@ -145,7 +145,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background 0.3s;
-            z-index: 7; /* 最前面に配置 */
+            z-index: 7;
         }
 
         .test-button:hover {
@@ -232,7 +232,7 @@
 <body>
     <div class="container">
         <h1 id="year-title">
-            <a id="dynamic-link" href="#" target="_blank"></a>
+            <span><a id="dynamic-link" href="#" target="_blank"></a>まで残り</span>
         </h1>
         <div class="countdown">
             <div class="time-box">
@@ -344,11 +344,13 @@
             const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
             const testWeekday = weekdays[testDate.getDay()];
 
-            document.getElementById('year-title').textContent = `令和${reiwaYear}年度大学入学共通テストまで残り`;
+            document.getElementById('year-title').innerHTML = `
+                <span>
+                    <a id="dynamic-link" href="https://www.dnc.ac.jp/kyotsu/shiken_jouhou/r${reiwaYear}/" target="_blank">
+                        令和${reiwaYear}年度大学入学共通テスト
+                    </a>まで残り
+                </span>`;
             document.getElementById('target-time').textContent = `試験日時: ${testDate.getFullYear()}年${testDate.getMonth() + 1}月${testDate.getDate()}日（${testWeekday}） 9時30分`;
-
-            dynamicLink.href = `https://www.dnc.ac.jp/kyotsu/shiken_jouhou/r${reiwaYear}/`;
-            dynamicLink.textContent = `令和${reiwaYear}年度大学入学共通テスト`;
         }
 
         function createFirework() {
