@@ -101,11 +101,11 @@
 
         .progress-bar span {
             position: absolute;
-            right: 10px;
+            left: 50%;
             top: 50%;
-            transform: translateY(-50%);
+            transform: translate(-50%, -50%);
             font-size: 14px;
-            color: white;
+            color: black; /* 修正点: 色を黒に設定 */
             font-weight: bold;
             white-space: nowrap;
         }
@@ -288,7 +288,7 @@
         </div>
         <div class="progress-bar-container">
             <div class="progress-bar" id="progress-bar">
-                <span id="progress-percentage">0.00%</span>
+                <span id="progress-percentage">0.000000%</span>
             </div>
         </div>
         <div class="target-time" id="target-time"></div>
@@ -395,7 +395,7 @@
             const progressPercentage = Math.min(
                 ((oneYearInMillis - timeDifference) / oneYearInMillis) * 100,
                 100
-            ).toFixed(2);
+            ).toFixed(6); // 小数点第6位まで表示
             progressBar.style.width = `${progressPercentage}%`;
             progressPercentageText.textContent = `${progressPercentage}%`;
         }
