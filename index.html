@@ -243,7 +243,8 @@
     <div class="dark-overlay" id="dark-overlay"></div>
     <div class="new-year-message" id="new-year-message">🎉 試験開始 🎉</div>
     <canvas class="fireworks" id="fireworks"></canvas>
-    <button class="test-button" onclick="showNewYearCelebration()">アニメーションテスト</button>
+    <button class="test-button" onclick="startAnimation()">アニメーション開始</button>
+    <button class="test-button" onclick="stopAnimation()" style="top: 70px;">アニメーション停止</button>
     <script>
         const fireworksCanvas = document.getElementById('fireworks');
         const ctx = fireworksCanvas.getContext('2d');
@@ -252,6 +253,8 @@
 
         const particles = [];
         const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE'];
+        let fireworkInterval = null;
+        let drawInterval = null;
 
         // 動的に高さを補正する関数
         function adjustHeight() {
@@ -383,15 +386,33 @@
         function showNewYearCelebration() {
             document.getElementById('dark-overlay').style.display = 'block';
             document.getElementById('new-year-message').style.display = 'block';
-            setInterval(createFirework, 1000);
+            startAnimation();
         }
 
-        setInterval(() => {
-            drawFireworks();
-        }, 33);
+        function startAnimation() {
+            if (!fireworkInterval) {
+                fireworkInterval = setInterval(createFirework, 1000);
+            }
+            if (!drawInterval) {
+                drawInterval = setInterval(drawFireworks, 33);
+            }
+        }
+
+        function stopAnimation() {
+            clearInterval(fireworkInterval);
+            fireworkInterval = null;
+            clearInterval(drawInterval);
+            drawInterval = null;
+            clearCanvas();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+            particles.length = 0;
+        }
 
         setInterval(updateCountdown, 1);
         updateCountdown();
     </script>
 </body>
-</html>
+<html>
