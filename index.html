@@ -247,7 +247,7 @@
         <div class="target-time" id="target-time"></div>
     </div>
     <div class="dark-overlay" id="dark-overlay"></div>
-    <div class="new-year-message" id="new-year-message">🎉 試験開始 🎉</div>
+    <div class="new-year-message" id="new-year-message">試験開始</div>
     <canvas class="fireworks" id="fireworks"></canvas>
     <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
     <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
@@ -258,7 +258,7 @@
         fireworksCanvas.height = window.innerHeight;
 
         const particles = [];
-        const colors = ['#546e7a', '#90a4ae', '#b0bec5', '#cfd8dc', '#eceff1']; // 色味を白背景に合わせて調整
+        const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE']; // 元のカラフルな色に戻しました
         let fireworkInterval = null;
         let drawInterval = null;
 
