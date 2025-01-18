@@ -12,7 +12,7 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            height: 100vh; /* 初期設定で高さを指定 */
+            height: 100vh;
             background: linear-gradient(135deg, #4facfe, #00f2fe);
             color: #fff;
             overflow: hidden;
@@ -26,7 +26,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100%; /* 親要素の高さを基準に調整 */
+            height: 100%;
         }
 
         h1 {
@@ -56,7 +56,7 @@
         }
 
         .time {
-            font-size: calc(45% + 4vw); /* サイズを少し小さく調整 */
+            font-size: calc(45% + 4vw);
             font-weight: bold;
             color: #fff;
             line-height: 1;
@@ -122,10 +122,9 @@
         }
 
         .test-button {
-            position: absolute;
-            bottom: 20px; /* 他の要素と干渉しないよう調整 */
-            left: 50%;
-            transform: translateX(-50%);
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
             background: #ff4081;
             color: white;
             border: none;
@@ -134,10 +133,15 @@
             border-radius: 10px;
             cursor: pointer;
             transition: background 0.3s;
+            z-index: 5;
         }
 
         .test-button:hover {
             background: #ff79a9;
+        }
+
+        .test-button.hidden {
+            display: none;
         }
 
         @media (max-width: 768px) {
@@ -243,8 +247,8 @@
     <div class="dark-overlay" id="dark-overlay"></div>
     <div class="new-year-message" id="new-year-message">🎉 試験開始 🎉</div>
     <canvas class="fireworks" id="fireworks"></canvas>
-    <button class="test-button" onclick="startAnimation()">アニメーション開始</button>
-    <button class="test-button" onclick="stopAnimation()" style="top: 70px;">アニメーション停止</button>
+    <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
+    <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
     <script>
         const fireworksCanvas = document.getElementById('fireworks');
         const ctx = fireworksCanvas.getContext('2d');
@@ -256,7 +260,9 @@
         let fireworkInterval = null;
         let drawInterval = null;
 
-        // 動的に高さを補正する関数
+        const startButton = document.getElementById('start-button');
+        const stopButton = document.getElementById('stop-button');
+
         function adjustHeight() {
             document.body.style.height = `${window.innerHeight}px`;
         }
@@ -396,6 +402,8 @@
             if (!drawInterval) {
                 drawInterval = setInterval(drawFireworks, 33);
             }
+            startButton.classList.add('hidden');
+            stopButton.classList.remove('hidden');
         }
 
         function stopAnimation() {
@@ -404,6 +412,8 @@
             clearInterval(drawInterval);
             drawInterval = null;
             clearCanvas();
+            startButton.classList.remove('hidden');
+            stopButton.classList.add('hidden');
         }
 
         function clearCanvas() {
