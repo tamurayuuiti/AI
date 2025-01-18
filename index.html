@@ -303,8 +303,21 @@
     <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
     <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
     <script>
-        const startButton = document.getElementById('start-button');
-        const stopButton = document.getElementById('stop-button');
+        // ボタン表示/非表示制御用の関数
+        function toggleTestButtons(isVisible) {
+            const startButton = document.getElementById('start-button');
+            const stopButton = document.getElementById('stop-button');
+            if (isVisible) {
+                startButton.classList.remove('hidden');
+                stopButton.classList.add('hidden');
+            } else {
+                startButton.classList.add('hidden');
+                stopButton.classList.remove('hidden');
+            }
+        }
+        
+        // 初期状態でボタンの制御
+        toggleTestButtons(true);
         const progressBar = document.getElementById('progress-bar');
         const progressPercentageText = document.getElementById('progress-percentage');
         const fireworksCanvas = document.getElementById('fireworks');
