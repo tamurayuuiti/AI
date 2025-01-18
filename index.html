@@ -303,146 +303,155 @@
     <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
     <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
     <script>
-    // ボタン表示/非表示制御用の関数
-    function toggleTestButtons(isVisible) {
-    const startButton = document.getElementById('start-button');
-    const stopButton = document.getElementById('stop-button');
+        // ボタン表示/非表示制御用の関数
+        function toggleTestButtons(isVisible) {
+            const startButton = document.getElementById('start-button');
+            const stopButton = document.getElementById('stop-button');
 
-    const buttons = [startButton, stopButton];
-    buttons.forEach(button => {
-        if (isVisible) {
-            button.classList.remove('hidden'); // 表示
-        } else {
-            button.classList.add('hidden'); // 非表示
+            const buttons = [startButton, stopButton];
+            buttons.forEach(button => {
+                if (isVisible) {
+                    button.classList.remove('hidden'); // 表示
+                } else {
+                    button.classList.add('hidden'); // 非表示
+                }
+            });
         }
-    });
-}
 
-// テストボタン（表示: true, 非表示: false）
-toggleTestButtons(false);
-const progressBar = document.getElementById('progress-bar');
-const progressPercentageText = document.getElementById('progress-percentage');
-const fireworksCanvas = document.getElementById('fireworks');
-const ctx = fireworksCanvas.getContext('2d');
-fireworksCanvas.width = window.innerWidth;
-fireworksCanvas.height = window.innerHeight;
+        // テストボタン（表示: true, 非表示: false）
+        toggleTestButtons(false);
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercentageText = document.getElementById('progress-percentage');
+        const fireworksCanvas = document.getElementById('fireworks');
+        const ctx = fireworksCanvas.getContext('2d');
+        fireworksCanvas.width = window.innerWidth;
+        fireworksCanvas.height = window.innerHeight;
 
-const particles = [];
-const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE'];
-let fireworkInterval = null;
-let drawInterval = null;
+        const particles = [];
+        const colors = ['#FF4081', '#FFD740', '#7C4DFF', '#536DFE', '#69F0AE'];
+        let fireworkInterval = null;
+        let drawInterval = null;
 
-const darkOverlay = document.getElementById('dark-overlay');
-const newYearMessage = document.getElementById('new-year-message');
-const dynamicLink = document.getElementById('dynamic-link');
+        const darkOverlay = document.getElementById('dark-overlay');
+        const newYearMessage = document.getElementById('new-year-message');
+        const dynamicLink = document.getElementById('dynamic-link');
 
-let testDate = calculateTestDate();
-let previousTestDate = calculatePreviousTestDate(testDate);
-let countdownFinished = false;
+        let testDate = calculateTestDate();
+        let previousTestDate = calculatePreviousTestDate(testDate);
+        let countdownFinished = false;
+        let progressStopped = false; // 進捗バー停止フラグ
 
-function adjustHeight() {
-    document.body.style.height = `${window.innerHeight}px`;
-}
-
-window.addEventListener('resize', adjustHeight);
-adjustHeight();
-
-window.addEventListener('resize', () => {
-    fireworksCanvas.width = window.innerWidth;
-    fireworksCanvas.height = window.innerHeight;
-});
-
-// 目標試験日時を計算
-function calculateTestDate() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const january13 = new Date(year, 0, 13);
-    let testDate = new Date(january13);
-
-    while (testDate.getDay() !== 6) {
-        testDate.setDate(testDate.getDate() + 1);
-    }
-
-    testDate.setHours(9, 30, 0, 0);
-    if (now > testDate) {
-        testDate = new Date(year + 1, 0, 13);
-        while (testDate.getDay() !== 6) {
-            testDate.setDate(testDate.getDate() + 1);
+        function adjustHeight() {
+            document.body.style.height = `${window.innerHeight}px`;
         }
-        testDate.setHours(9, 30, 0, 0);
-    }
 
-    return testDate;
-}
+        window.addEventListener('resize', adjustHeight);
+        adjustHeight();
 
-// 1つ前の試験日時を計算
-function calculatePreviousTestDate(targetTestDate) {
-    const previousYear = targetTestDate.getFullYear() - 1;
-    const january13 = new Date(previousYear, 0, 13);
-    let previousTestDate = new Date(january13);
+        window.addEventListener('resize', () => {
+            fireworksCanvas.width = window.innerWidth;
+            fireworksCanvas.height = window.innerHeight;
+        });
 
-    while (previousTestDate.getDay() !== 6) {
-        previousTestDate.setDate(previousTestDate.getDate() + 1);
-    }
+        // 目標試験日時を計算
+        function calculateTestDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const january13 = new Date(year, 0, 13);
+            let testDate = new Date(january13);
 
-    previousTestDate.setHours(9, 30, 0, 0);
-    return previousTestDate;
-}
+            while (testDate.getDay() !== 6) {
+                testDate.setDate(testDate.getDate() + 1);
+            }
 
-// カウントダウンを更新
-function updateCountdown() {
-    const now = new Date();
-    const timeDifference = testDate - now;
+            testDate.setHours(9, 30, 0, 0);
+            if (now > testDate) {
+                testDate = new Date(year + 1, 0, 13);
+                while (testDate.getDay() !== 6) {
+                    testDate.setDate(testDate.getDate() + 1);
+                }
+                testDate.setHours(9, 30, 0, 0);
+            }
 
-    if (timeDifference <= 0) {
-        if (!countdownFinished) {
-            countdownFinished = true;
-            startAnimation();
+            return testDate;
         }
-        return;
-    }
 
-    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-    const milliseconds = Math.floor(timeDifference % 1000);
+        // 1つ前の試験日時を計算
+        function calculatePreviousTestDate(targetTestDate) {
+            const previousYear = targetTestDate.getFullYear() - 1;
+            const january13 = new Date(previousYear, 0, 13);
+            let previousTestDate = new Date(january13);
 
-    document.getElementById('days').textContent = days;
-    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-    document.getElementById('milliseconds').textContent = String(milliseconds).padStart(3, '0');
+            while (previousTestDate.getDay() !== 6) {
+                previousTestDate.setDate(previousTestDate.getDate() + 1);
+            }
 
-    const reiwaYear = getReiwaYear(testDate.getFullYear());
-    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-    const testWeekday = weekdays[testDate.getDay()];
+            previousTestDate.setHours(9, 30, 0, 0);
+            return previousTestDate;
+        }
 
-    dynamicLink.href = `https://www.dnc.ac.jp/kyotsu/shiken_jouhou/r${reiwaYear}/`;
-    dynamicLink.textContent = `令和${reiwaYear}年度大学入学共通テスト`;
-    document.getElementById('target-time').textContent = `試験日時: ${testDate.getFullYear()}年${testDate.getMonth() + 1}月${testDate.getDate()}日（${testWeekday}） 9時30分`;
+        // カウントダウンを更新
+        function updateCountdown() {
+            const now = new Date();
+            const timeDifference = testDate - now;
 
-    updateProgressBar(); // 進捗バーを更新
-}
+            if (timeDifference <= 0) {
+                if (!countdownFinished) {
+                    countdownFinished = true;
+                    startAnimation();
+                }
+                return;
+            }
 
-// 進捗バーを更新
-function updateProgressBar() {
-    const now = new Date();
-    const totalDuration = testDate - previousTestDate; // 目標試験日時 - 前回試験日時
-    const elapsedDuration = now - previousTestDate; // 現在時刻 - 前回試験日時
+            const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+            const milliseconds = Math.floor(timeDifference % 1000);
 
-    // 進捗率を計算
-    const progressPercentage = Math.min((elapsedDuration / totalDuration) * 100, 100).toFixed(6);
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            document.getElementById('milliseconds').textContent = String(milliseconds).padStart(3, '0');
 
-    // 進捗バーとテキストを更新
-    progressBar.style.width = `${progressPercentage}%`;
-    progressPercentageText.textContent = `${progressPercentage}%`;
-}
+            const reiwaYear = getReiwaYear(testDate.getFullYear());
+            const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+            const testWeekday = weekdays[testDate.getDay()];
 
-// 令和年を計算
-function getReiwaYear(year) {
-    return year - 2018;
-}
+            dynamicLink.href = `https://www.dnc.ac.jp/kyotsu/shiken_jouhou/r${reiwaYear}/`;
+            dynamicLink.textContent = `令和${reiwaYear}年度大学入学共通テスト`;
+            document.getElementById('target-time').textContent = `試験日時: ${testDate.getFullYear()}年${testDate.getMonth() + 1}月${testDate.getDate()}日（${testWeekday}） 9時30分`;
+
+            updateProgressBar(); // 進捗バーを更新
+        }
+
+        // 進捗バーを更新
+        function updateProgressBar() {
+            if (progressStopped) return; // 進捗バーが停止している場合は更新しない
+
+            const now = new Date();
+            const totalDuration = testDate - previousTestDate; // 目標試験日時 - 前回試験日時
+            const elapsedDuration = now - previousTestDate; // 現在時刻 - 前回試験日時
+
+            // 進捗率を計算
+            const progressPercentage = Math.min((elapsedDuration / totalDuration) * 100, 100).toFixed(6);
+
+            // 進捗バーとテキストを更新
+            progressBar.style.width = `${progressPercentage}%`;
+            progressPercentageText.textContent = `${progressPercentage}%`;
+
+            // 進捗バーが100%になったら停止
+            if (progressPercentage >= 100) {
+                progressStopped = true;
+            }
+        }
+
+        // 令和年を計算
+        function getReiwaYear(year) {
+            return year - 2018;
+        }
+
         function createFirework() {
             const x = Math.random() * fireworksCanvas.width;
             const y = Math.random() * fireworksCanvas.height / 2;
