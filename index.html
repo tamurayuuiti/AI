@@ -339,6 +339,7 @@
         let testDate = calculateTestDate();
         let previousTestDate = calculatePreviousTestDate(testDate);
         let countdownFinished = false;
+        let progressStopped = false; // 進捗バー停止フラグ
 
         function adjustHeight() {
             document.body.style.height = `${window.innerHeight}px`;
@@ -399,6 +400,12 @@
                     countdownFinished = true;
                     startAnimation();
                 }
+                // カウントダウンが0を維持
+                document.getElementById('days').textContent = 0;
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+                document.getElementById('milliseconds').textContent = '000';
                 return;
             }
 
@@ -427,6 +434,8 @@
 
         // 進捗バーを更新
         function updateProgressBar() {
+            if (progressStopped) return; // 進捗バーが停止している場合は更新しない
+
             const now = new Date();
             const totalDuration = testDate - previousTestDate; // 目標試験日時 - 前回試験日時
             const elapsedDuration = now - previousTestDate; // 現在時刻 - 前回試験日時
@@ -437,6 +446,11 @@
             // 進捗バーとテキストを更新
             progressBar.style.width = `${progressPercentage}%`;
             progressPercentageText.textContent = `${progressPercentage}%`;
+
+            // 進捗バーが100%になったら停止
+            if (progressPercentage >= 100) {
+                progressStopped = true;
+            }
         }
 
         // 令和年を計算
