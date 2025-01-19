@@ -302,7 +302,14 @@
     <canvas class="fireworks" id="fireworks"></canvas>
     <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
     <script>
-        // ボタン表示/非表示制御用の関数
+        // 目標試験日時の10秒前に設定する関数
+        function setToTenSecondsBefore() {
+            const now = new Date();
+            testDate = new Date(now.getTime() + 10000); // 現在時刻 + 10秒
+            updateCountdown(); // カウントダウンを再計算
+        }
+        
+        // ボタン表示/非表示制御用の関数        
         function toggleTestButtons(isVisible) {
             const startButton = document.getElementById('start-button');
 
