@@ -302,26 +302,24 @@
     <canvas class="fireworks" id="fireworks"></canvas>
     <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
     <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
-    <button class="test-button hidden" id="current-time-button" onclick="setCurrentTime()">現在時刻設定</button>
     <script>
+        // ボタン表示/非表示制御用の関数
         function toggleTestButtons(isVisible) {
-            const buttons = document.querySelectorAll('.test-button');
+            const startButton = document.getElementById('start-button');
+            const stopButton = document.getElementById('stop-button');
+
+            const buttons = [startButton, stopButton];
             buttons.forEach(button => {
                 if (isVisible) {
-                    button.classList.remove('hidden');
+                    button.classList.remove('hidden'); // 表示
                 } else {
-                    button.classList.add('hidden');
+                    button.classList.add('hidden'); // 非表示
                 }
             });
         }
 
-        function setCurrentTime() {
-            const now = new Date(testDate.getTime() - 30 * 1000); // 目標日時の30秒前
-            alert(`現在時刻を設定しました: ${now}`);
-        }
-
-        let testDate = new Date();
-        toggleTestButtons(true);
+        // テストボタン（表示: true, 非表示: false）
+        toggleTestButtons(false);
         const progressBar = document.getElementById('progress-bar');
         const progressPercentageText = document.getElementById('progress-percentage');
         const fireworksCanvas = document.getElementById('fireworks');
