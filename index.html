@@ -166,31 +166,6 @@
             z-index: 5;
         }
 
-        .test-button {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: #f5f5f5;
-            color: #bdbdbd;
-            border: none;
-            padding: 6px 12px;
-            font-size: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            opacity: 0.5;
-            transition: background 0.3s, opacity 0.3s;
-            z-index: 7;
-        }
-
-        .test-button:hover {
-            background: #e0e0e0;
-            opacity: 0.7;
-        }
-
-        .test-button.hidden {
-            display: none;
-        }
-
         @media (max-width: 768px) {
             body {
                 justify-content: center;
@@ -208,11 +183,6 @@
             .time-box {
                 width: calc(12vw + 40px);
                 height: calc(12vw + 40px);
-            }
-
-            .test-button {
-                padding: 6px 10px;
-                font-size: 10px;
             }
         }
 
@@ -300,26 +270,7 @@
     <div class="dark-overlay" id="dark-overlay"></div>
     <div class="new-year-message" id="new-year-message">試験開始</div>
     <canvas class="fireworks" id="fireworks"></canvas>
-    <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
-    <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
     <script>
-        // ボタン表示/非表示制御用の関数
-        function toggleTestButtons(isVisible) {
-            const startButton = document.getElementById('start-button');
-            const stopButton = document.getElementById('stop-button');
-
-            const buttons = [startButton, stopButton];
-            buttons.forEach(button => {
-                if (isVisible) {
-                    button.classList.remove('hidden'); // 表示
-                } else {
-                    button.classList.add('hidden'); // 非表示
-                }
-            });
-        }
-
-        // テストボタン（表示: true, 非表示: false）
-        toggleTestButtons(false);
         const progressBar = document.getElementById('progress-bar');
         const progressPercentageText = document.getElementById('progress-percentage');
         const fireworksCanvas = document.getElementById('fireworks');
@@ -524,17 +475,6 @@
         function showNewYearCelebration() {
             darkOverlay.style.display = 'block';
             newYearMessage.style.display = 'block';
-        }
-
-        function toggleTestButton(buttonId, show) {
-            const button = document.getElementById(buttonId);
-            if (button) {
-                if (show) {
-                    button.classList.remove('hidden'); // ボタンを表示
-                } else {
-                    button.classList.add('hidden'); // ボタンを非表示
-                }
-            }
         }
 
         function startAnimation() {
