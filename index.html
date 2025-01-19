@@ -305,16 +305,12 @@
         // ボタン表示/非表示制御用の関数
         function toggleTestButtons(isVisible) {
             const startButton = document.getElementById('start-button');
-            const stopButton = document.getElementById('stop-button');
 
-            const buttons = [startButton, stopButton];
-            buttons.forEach(button => {
-                if (isVisible) {
-                    button.classList.remove('hidden'); // 表示
-                } else {
-                    button.classList.add('hidden'); // 非表示
-                }
-            });
+            if (isVisible) {
+                startButton.classList.remove('hidden'); // 表示
+            } else {
+                startButton.classList.add('hidden'); // 非表示
+            }
         }
 
         // テストボタン（表示: true, 非表示: false）
