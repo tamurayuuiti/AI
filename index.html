@@ -301,27 +301,25 @@
     <div class="new-year-message" id="new-year-message">試験開始</div>
     <canvas class="fireworks" id="fireworks"></canvas>
     <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
+    <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
     <script>
-        // 目標試験日時の10秒前に設定する関数
-        function setToTenSecondsBefore() {
-            const now = new Date();
-            testDate = new Date(now.getTime() + 10000); // 現在時刻 + 10秒
-            updateCountdown(); // カウントダウンを再計算
-        }
-        
-        // ボタン表示/非表示制御用の関数        
+        // ボタン表示/非表示制御用の関数
         function toggleTestButtons(isVisible) {
             const startButton = document.getElementById('start-button');
+            const stopButton = document.getElementById('stop-button');
 
-            if (isVisible) {
-                startButton.classList.remove('hidden'); // 表示
-            } else {
-                startButton.classList.add('hidden'); // 非表示
-            }
+            const buttons = [startButton, stopButton];
+            buttons.forEach(button => {
+                if (isVisible) {
+                    button.classList.remove('hidden'); // 表示
+                } else {
+                    button.classList.add('hidden'); // 非表示
+                }
+            });
         }
 
         // テストボタン（表示: true, 非表示: false）
-        toggleTestButtons(true);
+        toggleTestButtons(false);
         const progressBar = document.getElementById('progress-bar');
         const progressPercentageText = document.getElementById('progress-percentage');
         const fireworksCanvas = document.getElementById('fireworks');
@@ -540,15 +538,8 @@
         }
 
         function startAnimation() {
-            // 現在時刻を目標試験日時の10秒前に設定
-            const tenSecondsBeforeTest = new Date(testDate.getTime() - 10000);
-
-            // カウントダウンの動作を更新
-            previousTestDate = calculatePreviousTestDate(tenSecondsBeforeTest);
-            testDate = new Date(tenSecondsBeforeTest.getTime() + 10000);
-
-            updateCountdown(); // カウントダウンの表示を更新
-            toggleTestButtons(false);
+            toggleTestButton('start-button', false);
+            toggleTestButton('stop-button', true);
 
             if (!fireworkInterval) {
                 fireworkInterval = setInterval(createFirework, 1000);
@@ -556,6 +547,20 @@
             if (!drawInterval) {
                 drawInterval = setInterval(drawFireworks, 33);
             }
+            showNewYearCelebration();
+        }
+
+        function stopAnimation() {
+            toggleTestButton('stop-button', false);
+            toggleTestButton('start-button', true);
+
+            clearInterval(fireworkInterval);
+            fireworkInterval = null;
+            clearInterval(drawInterval);
+            drawInterval = null;
+            clearCanvas();
+            darkOverlay.style.display = 'none';
+            newYearMessage.style.display = 'none';
         }
 
         function clearCanvas() {
