@@ -36,13 +36,13 @@
         }
 
         h1 a {
-            color: #333;
+            color: #007BFF; /* 青文字に設定 */
             text-decoration: none;
             transition: color 0.3s;
         }
 
         h1 a:hover {
-            color: #007BFF;
+            color: #0056b3; /* ホバー時に濃い青色 */
         }
 
         .countdown {
@@ -339,7 +339,6 @@
         let testDate = calculateTestDate();
         let previousTestDate = calculatePreviousTestDate(testDate);
         let countdownFinished = false;
-        let progressStopped = false; // 進捗バー停止フラグ
 
         function adjustHeight() {
             document.body.style.height = `${window.innerHeight}px`;
@@ -428,8 +427,6 @@
 
         // 進捗バーを更新
         function updateProgressBar() {
-            if (progressStopped) return; // 進捗バーが停止している場合は更新しない
-
             const now = new Date();
             const totalDuration = testDate - previousTestDate; // 目標試験日時 - 前回試験日時
             const elapsedDuration = now - previousTestDate; // 現在時刻 - 前回試験日時
@@ -440,11 +437,6 @@
             // 進捗バーとテキストを更新
             progressBar.style.width = `${progressPercentage}%`;
             progressPercentageText.textContent = `${progressPercentage}%`;
-
-            // 進捗バーが100%になったら停止
-            if (progressPercentage >= 100) {
-                progressStopped = true;
-            }
         }
 
         // 令和年を計算
