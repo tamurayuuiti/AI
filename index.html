@@ -268,6 +268,7 @@
         <div class="target-time" id="target-time"></div>
     </div>
     <div class="dark-overlay" id="dark-overlay"></div>
+    <div id="close-button" class="close-button hidden" onclick="stopFireworksAnimation()">×</div>
     <div class="new-year-message" id="new-year-message">試験開始</div>
     <canvas class="fireworks" id="fireworks"></canvas>
     <script>
@@ -490,10 +491,20 @@
             showNewYearCelebration();
         }
 
-        function stopAnimation() {
-            toggleTestButton('stop-button', false);
-            toggleTestButton('start-button', true);
+        function startFireworksAnimation() {
+            if (!fireworkInterval) {
+                fireworkInterval = setInterval(createFirework, 1000);
+            }
+            if (!drawInterval) {
+                drawInterval = setInterval(drawFireworks, 33);
+            }
+            showNewYearCelebration();
 
+            const closeButton = document.getElementById('close-button');
+            if (closeButton) closeButton.classList.remove('hidden');
+        }
+
+        function stopFireworksAnimation() {
             clearInterval(fireworkInterval);
             fireworkInterval = null;
             clearInterval(drawInterval);
@@ -501,6 +512,9 @@
             clearCanvas();
             darkOverlay.style.display = 'none';
             newYearMessage.style.display = 'none';
+
+            const closeButton = document.getElementById('close-button');
+            if (closeButton) closeButton.classList.add('hidden');
         }
 
         function clearCanvas() {
