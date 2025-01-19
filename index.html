@@ -301,7 +301,6 @@
     <div class="new-year-message" id="new-year-message">試験開始</div>
     <canvas class="fireworks" id="fireworks"></canvas>
     <button class="test-button" id="start-button" onclick="startAnimation()">アニメーション開始</button>
-    <button class="test-button hidden" id="stop-button" onclick="stopAnimation()">アニメーション停止</button>
     <script>
         // ボタン表示/非表示制御用の関数
         function toggleTestButtons(isVisible) {
@@ -539,7 +538,6 @@
 
         function startAnimation() {
             toggleTestButton('start-button', false);
-            toggleTestButton('stop-button', true);
 
             if (!fireworkInterval) {
                 fireworkInterval = setInterval(createFirework, 1000);
@@ -548,19 +546,6 @@
                 drawInterval = setInterval(drawFireworks, 33);
             }
             showNewYearCelebration();
-        }
-
-        function stopAnimation() {
-            toggleTestButton('stop-button', false);
-            toggleTestButton('start-button', true);
-
-            clearInterval(fireworkInterval);
-            fireworkInterval = null;
-            clearInterval(drawInterval);
-            drawInterval = null;
-            clearCanvas();
-            darkOverlay.style.display = 'none';
-            newYearMessage.style.display = 'none';
         }
 
         function clearCanvas() {
