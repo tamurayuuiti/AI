@@ -533,7 +533,15 @@
         }
 
         function startAnimation() {
-            toggleTestButton('start-button', false);
+            // 現在時刻を目標試験日時の10秒前に設定
+            const tenSecondsBeforeTest = new Date(testDate.getTime() - 10000);
+
+            // カウントダウンの動作を更新
+            previousTestDate = calculatePreviousTestDate(tenSecondsBeforeTest);
+            testDate = new Date(tenSecondsBeforeTest.getTime() + 10000);
+
+            updateCountdown(); // カウントダウンの表示を更新
+            toggleTestButtons(false);
 
             if (!fireworkInterval) {
                 fireworkInterval = setInterval(createFirework, 1000);
@@ -541,7 +549,6 @@
             if (!drawInterval) {
                 drawInterval = setInterval(drawFireworks, 33);
             }
-            showNewYearCelebration();
         }
 
         function clearCanvas() {
