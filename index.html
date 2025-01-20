@@ -10,6 +10,8 @@
             --z-index-fireworks: 15
             --z-index-message: 20
             --z-index-close-button: 21
+            --z-index-container: 2
+            --z-index-progress-bar-container-span: 1
         }
         
         body {
@@ -27,7 +29,7 @@
 
         .container {
             text-align: center;
-            z-index: 2;
+            z-index: var(--z-index-container);
             padding: 1rem;
             display: flex;
             flex-direction: column;
@@ -117,7 +119,7 @@
             color: black;
             font-weight: bold;
             white-space: nowrap;
-            z-index: 1;
+            z-index: var(progress-bar-container-span);
         }
 
         .target-time {
