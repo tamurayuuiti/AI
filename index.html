@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>共通テストカウントダウン</title>
     <style>
+        :root {
+            --z-index-overlay: 10
+            --z-index-fireworks: 15
+            --z-index-message: 20
+            --z-index-close-button: 21
+        }
+        
         body {
             margin: 0;
             font-family: 'Arial', sans-serif;
@@ -132,7 +139,7 @@
             color: #1E88E5;
             text-shadow: 0 0 10px rgba(30, 136, 229, 0.5), 0 0 20px rgba(30, 136, 229, 0.7);
             animation: glow 1.5s infinite;
-            z-index: 6;
+            z-index: var(--z-index-message);
             white-space: nowrap;
         }
 
@@ -144,7 +151,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.9);
-            z-index: 4;
+            z-index: var(--z-index-overlay);
         }
 
         @keyframes glow {
@@ -163,7 +170,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 5;
+            z-index: var(--z-index-fireworks);
         }
 
         .close-button {
@@ -181,7 +188,7 @@
             align-items: center;
             border-radius: 50%;
             cursor: pointer;
-            z-index: 10;
+            z-index: var(--z-index-close-button);
             transition: all 0.3s ease;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
